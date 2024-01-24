@@ -1,0 +1,13 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore compiled binaries
+*.exe
+*.o
+*.out
+
+# Ignore log files
+*.log
+
+# Ignore configuration files
+config.ini
