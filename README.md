@@ -12,4 +12,5 @@ Humour Theory, Interaction Design, Research-Creation, Creative Development, Huma
 
 - [Journal](/documentation/journal.md) - This is where I write, brainstorm and cry about my research 
 - [Assets](/documentation/assets) - This is where I store my all accompanying journal assets (screenshots, handwritten & vocal notes, etc.)
+- [Motivating Materials](https://www.juniorvigneault.com) - A library of inspiration (projects & ressources)
 - [Live](https://www.juniorvigneault.com) - This is where ongoing sketches & ideas will be accessible for users to experience, test and play with
