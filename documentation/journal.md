@@ -40,5 +40,14 @@ I started reading about humour and comedy this morning. I was looking for a sort
 
 SO YEAH.
 
-## January 24 2023 - Afternoon
+## January 26 2023 - Afternoon
 
+This is my first entry transcribed from vocal note and edited to make a bit more sense. I'm trying this way of doing instead of traditional writing journaling because talking feels more productive and freeing than writing. Recording allows me to later transcribe and edit, focusing on the essence. Writing gets me too caught up in words and structure.
+
+Currently, I'm experimenting with the "This Person Doesn't Exist" API to generate fictional faces. I then create Matter.js bodies for each pixel of the AI generated face, exploring the intersection of random faces and pixel particles. I don't know why I'm doing this. It's a technical start, aligning with my desire to infuse humor theory into programming I guess. Or just doing something to overcome the blank page syndrome. 
+
+I've delved a bit into humor theories literature, settling on superiority theory for my first case (chronologically, it is sort of the first official theory, so it makes sense to start my creative journey with it as well). The challenge is integrating humor theory seamlessly into my work, not just discussing it. My approach involves small technical explorations with Matter.js, infusing them with superiority theory.
+
+For example, using friction in Matter.js, and finding ways to create humor based on superiority theory using this specific element to create a small sketch. The goal is to have around 10 such explorations per theory, eventually leading to a more significant project with a narrative aspect or a more developped conceptual approach. Each case will have a list of sources from various authors discussing the chosen humor theory. This week, I'll compile resources on superiority theory to deepen my understanding.
+
+SO. This semester, Matter.js is my main framework, with a focus on physics and the integration of superiority theory. Other frameworks may come into play, but the primary emphasis is on the chosen theory and physics in Matter.js.

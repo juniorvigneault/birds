@@ -49,7 +49,7 @@ let rightWall = {
 };
 
 let img;
-let pixelation_level = 10; // Adjust the pixelation level for larger pixels
+let pixelation_level = 26; // Adjust the pixelation level for larger pixels
 let pixelsToAdd = [];
 let fakeFaceImage;
 
@@ -66,7 +66,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     pixelDensity(2);
     noStroke();
-    img.resize(200, 200)
+    img.resize(600, 600)
     // Matter.js setup
     runEngine();
 
