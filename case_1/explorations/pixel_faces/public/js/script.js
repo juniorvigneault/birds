@@ -49,13 +49,15 @@ let rightWall = {
 };
 
 let img;
-let pixelation_level = 26; // Adjust the pixelation level for larger pixels
+let pixelation_level = 20; // Adjust the pixelation level for larger pixels
 let pixelsToAdd = [];
 let fakeFaceImage;
-
+let timeToDraw = 10;
+let explodingButtonContainer;
 // load portrait (placeholder for now)
 function preload() {
-    img = loadImage("assets/images/1.jpg"); // https://thispersondoesnotexist.com/
+    loadNewFace();
+    // explodingButtonContainer = document.querySelector('.button-container');
 }
 
 window.addEventListener('resize', (event) => {
@@ -66,13 +68,13 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     pixelDensity(2);
     noStroke();
-    img.resize(600, 600)
+    img.resize(500, 500);
     // Matter.js setup
     runEngine();
 
     // Drawing Matter.js boundaries (replace this with your Matter.js code)
-    let boundarySize = 10;
-    boundaries.push(new Boundary(width / 2, height + boundarySize / 2, width, boundarySize, 0, world));
+    updateBoundaries();
+    // boundaries.push(new Boundary(width / 2, height + boundarySize / 2, width, boundarySize, 0, world));
 
     // Perform pixelation on the image
     for (let x = 0; x < img.width; x += pixelation_level) {
@@ -93,22 +95,65 @@ function setup() {
             });
         }
     }
-    console.log(pixelsToAdd.length)
     // Animation: Draw pixels over time from the bottom
     drawPixelsWithDelay();
+
+    // setInterval(loadNewFace, 10000)
+    // positionExplodeButton();
 }
 
+function draw() {
+    background(250, 218, 221)
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].display();
+    }
 
+    if (pixelsToAdd.length <= 0) {
+        setTimeout(() => {
+            engine.gravity.scale = 0.001
+        }, 2000);
+
+    }
+
+}
 
 function drawPixelsWithDelay() {
     if (pixelsToAdd.length > 0) {
-        let pixel = pixelsToAdd.pop();
-        fill(pixel.r, pixel.g, pixel.b, pixel.a);
-        square(pixel.x, pixel.y, pixelation_level);
+        // Shuffle the pixelsToAdd array
+        shuffleArray(pixelsToAdd);
 
-        setTimeout(drawPixelsWithDelay, 10); // Set the delay to 10 milliseconds for a faster animation
+        let pixel = pixelsToAdd.pop();
+        let centerX = width / 2;
+        let centerY = height / 2;
+
+        // Adjust the starting position based on the pixelation level
+        let startX = centerX - (img.width / 2) + pixel.x;
+        let startY = centerY - (img.height / 2) + pixel.y;
+
+        fill(pixel.r, pixel.g, pixel.b, pixel.a);
+        // ellipse(startX, startY, pixelation_level);
+
+        let rgb = [pixel.r, pixel.g, pixel.b]
+        // particles take the RGB of picture
+        particles.push(new Particle(startX, startY, pixelation_level, pixelation_level, rgb, world))
+        // white particles
+        // let white = [255, 255, 255]
+        // particles.push(new Particle(startX, startY, pixelation_level, pixelation_level, white, world))
+
+
+        setTimeout(drawPixelsWithDelay, timeToDraw); // Set the delay to 10 milliseconds for a faster animation
     }
 }
+
+// Fisher-Yates shuffle function
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+
 
 function updateBoundaries() {
     resizeCanvas(windowWidth, windowHeight);
@@ -143,38 +188,25 @@ function getBoundarySize() {
 
 function runEngine() {
     engine = Engine.create();
+    engine.gravity.scale = 0.001
     world = engine.world;
     Runner.run(engine);
+
+    let mouse = Mouse.create(document.body),
+        mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                stiffness: 0.2,
+            }
+        });
+
+    World.add(world, mouseConstraint);
 }
 
-function drawPixelsWithDelay() {
-    if (pixelsToAdd.length > 0) {
-        let pixel = pixelsToAdd.pop();
-        fill(pixel.r, pixel.g, pixel.b, pixel.a);
-        square(pixel.x, pixel.y, pixelation_level);
-
-        setTimeout(drawPixelsWithDelay, 10); // Set the delay to 10 milliseconds for a faster animation
-    }
+function loadNewFace() {
+    img = loadImage('/proxy-image');
 }
 
-function getPixels() {
-    for (let x = 0; x < width; x += pixelation_level) {
-        for (let y = 0; y < height; y += pixelation_level) {
-
-            let c = img.get(x, y);
-            let r = c[0];
-            let g = c[1];
-            let b = c[2];
-            let a = c[3];
-
-            pixelsToAdd.push({
-                x: x,
-                y: y,
-                r: r,
-                g: g,
-                b: b,
-                a: a
-            });
-        }
-    }
-}
+// function positionExplodeButton() {
+//     explodingButtonContainer.style.top = '200px'
+// }

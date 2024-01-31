@@ -1,4 +1,18 @@
 * {
     padding: 0;
     margin: 0;
+    overflow: hidden;
+}
+
+.face-img {
+    display: none;
+}
+
+.button-container {
+    position: absolute;
+    top: 0;
+}
+
+.explode-button {
+    padding: 10px;
 }

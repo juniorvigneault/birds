@@ -1,17 +1,24 @@
 const express = require('express');
+const axios = require('axios');
 const app = express();
-const path = require('path');
-
 const port = 3000;
 
-// Serve static files from the 'public' directory
 app.use(express.static('public'));
 
-// Catch-all route to serve 'index.html'
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/proxy-image', async (req, res) => {
+    try {
+        const response = await axios.get('https://100k-faces.glitch.me/random-image', {
+            responseType: 'arraybuffer'
+        });
+        const contentType = response.headers['content-type'];
+        res.set('Content-Type', contentType);
+        res.send(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 });
