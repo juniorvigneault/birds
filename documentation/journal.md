@@ -51,3 +51,26 @@ I've delved a bit into humor theories literature, settling on superiority theory
 For example, using friction in Matter.js, and finding ways to create humor based on superiority theory using this specific element to create a small sketch. The goal is to have around 10 such explorations per theory, eventually leading to a more significant project with a narrative aspect or a more developped conceptual approach. Each case will have a list of sources from various authors discussing the chosen humor theory. This week, I'll compile resources on superiority theory to deepen my understanding.
 
 SO. This semester, Matter.js is my main framework, with a focus on physics and the integration of superiority theory. Other frameworks may come into play, but the primary emphasis is on the chosen theory and physics in Matter.js.
+
+## February 6th 2023 - NOON
+
+Hello,
+I'm feeling so good because my porftolio using matter.js got featured on a nice website that feature weird websites. This got me excited and then I posted my pixelated faces experiment on instagram because I was excited, and then when I was writing my little caption I wrote : 
+
+"Currently obsessed with printing pixelated people that don’t exist using the @peoplethatdontexist API
+
+I don’t know why this is so satisfying and weird to me. Feels like I’m digitally birthing these people."
+
+![instagram.com/junior.vigneault](assets/images/instagram-screenshot-pixelated-faces.jpg)
+
+This made me realize two things:
+1. I only get ideas when I'm happy
+2. I think I care too much what people think about me
+
+But anyway, the idea behind printing people that don't exist was inspired by Darius Kazemi's[Make Someone](https://tinysubversions.com/stuff/person/)where you generate a new AI person by clicking on a button, and then this person is associated with three random characteristics (that can contradict each other, making it even funnier imo). This makes me think about the superiority theory in a way where I feel the humor is coming from feeling superior to the person I'm creating. I feel like they are ridiculous, especially with these random values and beliefs. There is something funny in the fact that they are not consenting to being created even, and given a personality at random. We laugh at them, activating the superiority theory (I FEEL LIKE). I'm still looking for good literature about the theories, but I'm noticing that OF COURSE they are sort of mixed together. Like there is definitely incongruity theory in here.
+
+I was trying to think about examples of things I find funny related to superiority theory, and I thought about something I did that was kind of mean in CEGEP. So there was this girl from my high school that claimed to be a photographer but her pictures were horrendous really. She had a Facebook page with all her photographs, and one day she posted an album with really awful photos of a bunch of girls (also from my high school) going for a night out. The pictures were taken in a weird basement with bad lighting, and the girls all had their cute outfits with tiaras, yes, *tiaras*. There was a bunch of different dispositions with different girls sitting down, standing, sitting, at different places in the basement, and the last ones were in a limousine they had rented for going out.
+
+Needless to say, my mean friends and I thought this was completely hilarious and these pictures became a sort of golden grail of artistic ideas. At the time as students, we could have a photograph on our credit cards, and I decided to take one of them as my credit card picture. Then my friend made a crew-neck featuring 2 other pictures, and I think we even did a mouse pad. This was obviously mean, and now I kind of feel bad about it, but I still think it is hilarious. I mean, we were so obsessed with these pictures that we started to love their aesthetic and really, they became art in our eyes, which is maybe even more mean, but I don't know, the line became blurry.
+
+All that to say that I think I want to take inspiration from this to work on my first case. And working with the pixelated faces, and writing about giving **digital birth** to them (project title idea????????), I thought I could maybe create something where you have to give birth to an AI-generated person that grows, sort of a Tamagotchi-ish thing, where you are their parent and stuff. I think parents probably laugh at their children and feel superior??? Maybe. I also thought about being a teacher and teaching a classroom with AI faces and laughing at them. Exploiting a sort of power dynamics for LAUGHS. I think since they are AI people, then feelings don't really get involved, and that leaves a lot of space for comedy. GOOD TALK.

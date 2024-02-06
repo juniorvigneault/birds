@@ -49,7 +49,7 @@ let rightWall = {
 };
 
 let img;
-let pixelation_level = 20; // Adjust the pixelation level for larger pixels
+let pixelation_level = 15; // Adjust the pixelation level for larger pixels
 let pixelsToAdd = [];
 let fakeFaceImage;
 let timeToDraw = 10;
@@ -68,7 +68,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     pixelDensity(2);
     noStroke();
-    img.resize(500, 500);
+    img.resize(700, 300);
     // Matter.js setup
     runEngine();
 
@@ -188,7 +188,7 @@ function getBoundarySize() {
 
 function runEngine() {
     engine = Engine.create();
-    engine.gravity.scale = 0.001
+    engine.gravity.scale = 0.001;
     world = engine.world;
     Runner.run(engine);
 
@@ -205,6 +205,8 @@ function runEngine() {
 
 function loadNewFace() {
     img = loadImage('/proxy-image');
+    // img = loadImage('assets/images/creative-coding.png');
+
 }
 
 // function positionExplodeButton() {

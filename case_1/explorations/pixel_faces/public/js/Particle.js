@@ -31,9 +31,8 @@ class Particle {
         rectMode(CENTER);
         translate(pos.x, pos.y);
         rotate(angle);
-        // noStroke();
+        noStroke();
         // fillHsluv(321, 49, 50);
-        stroke(0)
         fill(this.color.r, this.color.g, this.color.b)
 
         rect(0, 0, this.w, this.h);
