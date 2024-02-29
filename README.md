@@ -1,16 +1,18 @@
-# mdes
-This repository is home to my master's research-creation project in design, exploring the comedic potential of JavaScript frameworks.
+# haha.js: The Comedic Potential of JavaScript Frameworks
 
-### Research Question
-How can humour theories be harnessed to explore the creative potential of JavaScript frameworks
+
+### Research Questions
+In what ways does humour theory influence the development process of a browser-based interactive experience when working with JavaScript frameworks?
+ 
+How do these interactive experiences critically engage with interactive systems and our relationship with technology?
 
 ### Keywords
-Humour Theory, Interaction Design, Research-Creation, Creative Development, Human-Computer-Interaction, Reflection-in-action, Playfulness, Interactivity, Creative Coding, Research Through Design, Method for Design Materialization, Self-Archiving, Version Control System
+Humour Theory, JavaScript Frameworks, Interaction Design, User Experience, Creative Coding, Research Through Design, Reflexive Practice
 
 
 ### Useful links
 
 - [Journal](/documentation/journal.md) - This is where I write, brainstorm and cry about my research 
-- [Assets](/documentation/assets) - This is where I store my all accompanying journal assets (screenshots, handwritten & vocal notes, etc.)
-- [Motivating Materials](https://www.juniorvigneault.com) - A library of inspiration (projects & ressources)
-- [Live](https://www.juniorvigneault.com) - This is where ongoing sketches & ideas will be accessible for users to experience, test and play with
+- [Journal Assets](/documentation/assets) - This is where I store my all accompanying journal assets (screenshots, handwritten & vocal notes, etc.)
+
+[www.juniorvigneault.com](https://www.juniorvigneault.com)

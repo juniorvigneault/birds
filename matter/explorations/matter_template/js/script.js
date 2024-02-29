@@ -54,7 +54,6 @@ let rightWall = {
 
 window.addEventListener('resize', (event) => {
     updateBoundaries();
-
 });
 
 function setup() {
