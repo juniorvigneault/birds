@@ -1,9 +1,9 @@
 # Journal 
 
-## January 23 2023 - Morning
+## January 23 2024 - Morning
 I want to start my first case using a framework I already know (sort of) well, the physics engine matter.js. I've used it a lot in the past, So I think I want to start by listing and brainstorming freely about things I know about it and would want to push further, as well as what could be interesting in combination with other frameworks for visualizing the actual physics. 
 
-## January 23 2023 - Afternoon
+## January 23 2024 - Afternoon
 
 So I made a list of things I think are interesting to play with using matter.js that I would like to explore based on the [demo](https://brm.io/matter-js/demo/#cloth) page.
 
@@ -15,7 +15,7 @@ So I made a list of things I think are interesting to play with using matter.js 
 5. Soft body - squishy things
 6. Complex terrain 
    
-## January 24 2023 - Morning
+## January 24 2024 - Morning
 
 I woke up a bit confused this morning about a bunch of stuff. 
 1. What I want to make, is it weird web design, games, interactive art, experience... Should I even chose... I think its a web interactive experience game-like thing that incorporate weird web design things that could be used in weird web design?
@@ -40,7 +40,7 @@ I started reading about humour and comedy this morning. I was looking for a sort
 
 SO YEAH.
 
-## January 26 2023 - Afternoon
+## January 26 2024 - Afternoon
 *Transcribed from vocal note using Otter.ai*
 
 This is my first entry transcribed from vocal note and edited to make a bit more sense. I'm trying this way of doing instead of traditional writing journaling because talking feels more productive and freeing than writing. Recording allows me to later transcribe and edit, focusing on the essence. Writing gets me too caught up in words and structure.
@@ -53,7 +53,7 @@ For example, using friction in Matter.js, and finding ways to create humor based
 
 SO. This semester, Matter.js is my main framework, with a focus on physics and the integration of superiority theory. Other frameworks may come into play, but the primary emphasis is on the chosen theory and physics in Matter.js.
 
-## February 6th 2023 - NOON
+## February 6th 2024 - NOON
 
 Hello,
 I'm feeling so good because my porftolio using matter.js got featured on a nice website that feature weird websites. This got me excited and then I posted my pixelated faces experiment on instagram because I was excited, and then when I was writing my little caption I wrote : 
@@ -76,8 +76,10 @@ Needless to say, my mean friends and I thought this was completely hilarious and
 
 All that to say that I think I want to take inspiration from this to work on my first case. And working with the pixelated faces, and writing about giving **digital birth** to them (project title idea????????), I thought I could maybe create something where you have to give birth to an AI-generated person that grows and gets older, an experience where you are the parent of this person. I think parents probably laugh at their children and feel superior??? Maybe. I also thought about being a teacher and teaching a classroom with AI faces and laughing at them. Exploiting a sort of power dynamics for LAUGHS. Like a kindergarten class could be funny. Or mayby not trying to recreate something like an environment, just a page where an person that doesn't exist needs to be taken care of. I think since they are AI people, then feelings don't really get involved, and that leaves a lot of space for comedy. GOOD TALK.
 
-## February 29 2023 - NOON
-*Transcribed from vocal note using Otter.ai and edited by me*
+## February 29 2024 - NOON
+*Transcribed from vocal note using Otter.ai, I think it's a bit weird so not sure i'll continue doing that*
 
  So in my interdisciplinarity class we have this teams project where we have to exchange one aspect of our discipline with another designer. And the designer that I'm working with is someone who does site specific work. Usually with sort of abandoned sites where the nature is left to grow and there's also people using it it's not specifically for something it's just like sort of there and wild and free. And so they (the designer) usually go there and explore this site and take like different documentation different things using natural resources and playing with those things, to sort of reconnect with the land and understand you know, what's happening with this and so yeah, so anyways, I don't even really understand it too much. But I sort of took from *that* just going outside and documenting (haha), going somewhere specifically and then documenting this using video pictures and other and I also did a sketch. also recorded sounds with sound recorder. I'm sure I was trying to do something. Like trying to see what I can do with JavaScript to make something out of all that documentation. And for this small project, and I had this idea of just taking birds, video of birds and using media pipe to sort of detect the bird and then use this image in a video of a bird to sort of take it out of its context and put it in a different context. And this came from the idea that we're, their superiority theory and humor is about laughing at something and I think that when we're putting animals in other contexts, in different contexts, it's we make them sort of ridicule and we laugh at them, in a sense and I think this relates a lot to the superiority theory because we're we're like we're feeling superior to the bird that we're putting in a different context and I sense and you know, birds are just they have like these they're already funny munificence by themselves, but like so yeah. So I had the idea of like using media pipe to object detection to really sort of cash in on the idea of like, detecting something and then pulling it out of its context and then putting it into another context. So like, for example, you could detect a bird using your phone and then this would like capture a picture of the bird, cut out the actual bird and then transfer it into like, I don't know, put a hat on it and, and stuff like that. So I'm going to work on start working on that. And I know I was I said, I was working with Metro js and I'm a bit over it, to be honest at this point. Like, I'm gonna probably go back to it at some point, but now I'm really excited to actually work on this small idea that I have. So yeah, I'm going to try to do that. So right now I'm really concentrating on actually it's been really a pain in the neck to connect media pipe with P five, because I don't know I like to work with P five for visual stuff. So yeah, right now I'm just focusing on that. But we will report later. Thank you.
+
+## March 19 2024 - MORNING
 
