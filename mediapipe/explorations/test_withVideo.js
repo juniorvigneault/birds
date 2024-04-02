@@ -1,63 +1,113 @@
-// Copyright 2023 The MediaPipe Authors.
-//https://codepen.io/mediapipe-preview/pen/xxJNjbN
-//https://developers.google.com/mediapipe/solutions/vision/image_segmenter/web_js
-
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//      http://www.apache.org/licenses/LICENSE-2.0
-
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// import mediapipe detection stuff
 import {
+  ObjectDetector,
   ImageSegmenter,
   FilesetResolver
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2";
-window.onload = function () {
-  // Get DOM elements
-  const video = document.getElementById("webcam");
-  const canvasElement = document.getElementById("canvas");
-  const canvasCtx = canvasElement.getContext("2d");
-  const webcamPredictions = document.getElementById("webcamPredictions");
-  const demosSection = document.getElementById("demos");
-  let enableWebcamButton;
-  let webcamRunning = false;
-  const videoHeight = "360px";
-  const videoWidth = "480px";
-  let runningMode = "IMAGE";
-  const resultWidthHeigth = 256;
 
-  let imageSegmenter;
-  let labels = [];
+// mediapipe stuff
+let objectDetector;
+let runningMode = "VIDEO";
+// store the results of the model
+let results;
+let isDetecting = false;
+let birdImageCreated = false;
+let cutOutBirdImage;
+let maskImage;
+let birdIsSegmented = false;
+// imageSegmentation 
+let imageSegmenter;
+let labels = [];
 
-  const legendColors = [
-    [255, 197, 0, 255], // Vivid Yellow
-    [128, 62, 117, 255], // Strong Purple
-    [255, 104, 0, 255], // Vivid Orange
-    [166, 189, 215, 255], // Very Light Blue
-    [193, 0, 32, 255], // Vivid Red
-    [206, 162, 98, 255], // Grayish Yellow
-    [129, 112, 102, 255], // Medium Gray
-    [0, 125, 52, 255], // Vivid Green
-    [246, 118, 142, 255], // Strong Purplish Pink
-    [0, 83, 138, 255], // Strong Blue
-    [255, 112, 92, 255], // Strong Yellowish Pink
-    [83, 55, 112, 255], // Strong Violet
-    [255, 142, 0, 255], // Vivid Orange Yellow
-    [179, 40, 81, 255], // Strong Purplish Red
-    [244, 200, 0, 255], // Vivid Greenish Yellow
-    [127, 24, 13, 255], // Strong Reddish Brown
-    [147, 170, 0, 255], // Vivid Yellowish Green
-    [89, 51, 21, 255], // Deep Yellowish Brown
-    [241, 58, 19, 255], // Vivid Reddish Orange
-    [35, 44, 22, 255], // Dark Olive Green
-    [0, 161, 194, 255] // Vivid Blue
-  ];
+// video variable for footage 
+let birdFootage = {
+  p5VideoLayer: undefined,
+  htmlVideoLayer: undefined,
+  path: 'images/seagull.mov',
+  isRunning: false,
+  width: 640,
+  height: 360
+}
 
+let sketch = new p5(function (p5) {
+  p5.setup = async function () {
+    // create a video element from the video footage for the canvas
+    birdFootage.p5VideoLayer = p5.createVideo(birdFootage.path);
+    p5.createCanvas(birdFootage.width, birdFootage.height);
+    // initialize bird detection 
+    await initializeObjectDetector();
+    // initialize bird segmentation
+    await createImageSegmenter();
+    birdFootage.p5VideoLayer.loop();
+  }
+  // run video and detections and draw rectangles around birds
+  p5.draw = function () {
+    p5.background(0);
+    // copy the video stream to the canvas and position it under it
+    birdFootage.htmlVideoLayer = document.querySelector('video');
+    birdFootage.htmlVideoLayer.style.position = 'fixed';
+    birdFootage.htmlVideoLayer.style.top = '0px';
+    birdFootage.htmlVideoLayer.style.zIndex = '-1';
+    p5.push();
+    p5.image(birdFootage.p5VideoLayer, 0, 0, birdFootage.width, birdFootage.height);
+    p5.pop();
+    // if the the model is initialized, run detection on video and draw rectangles around birds
+    if (objectDetector && isDetecting) {
+      // put the detections of the video in results
+      results = objectDetector.detectForVideo(birdFootage.htmlVideoLayer, p5.millis());
+      let birdsDetected = results.detections;
+      // draw a rect around each bird
+      for (let i = 0; i < birdsDetected.length; i++) {
+        p5.push();
+        let box = birdsDetected[i].boundingBox;
+        p5.fill(255, 255, 255, 0)
+        p5.stroke(230, 0, 0)
+        p5.rect(box.originX, box.originY, box.width, box.height)
+        p5.pop();
+      }
+    }
+
+    if (birdImageCreated) {
+      // p5.image(cutOutBirdImage, 0, 0);
+    }
+
+    // Display the new p5 Image object
+    if (birdIsSegmented) {
+      resultBox(p5.width / 2, p5.height / 2, maskImage.width + 20, maskImage.height + 20);
+
+    }
+  }
+
+  // when clicking the canvas, play video in a loop
+  p5.mousePressed = function () {
+    isDetecting = true;
+  }
+  p5.mouseReleased = function () {
+    isDetecting = false;
+  }
+
+  p5.keyPressed = function () {
+    if (isDetecting && p5.keyCode === 83) {
+      // pause the footage video loop
+      birdFootage.p5VideoLayer.pause();
+      // create an image with the first bird in the array
+      createBirdImage();
+    }
+  }
+
+  async function initializeObjectDetector() {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+    );
+    objectDetector = await ObjectDetector.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite`,
+        delegate: "GPU"
+      },
+      scoreThreshold: 0.5,
+      runningMode: 'VIDEO'
+    });
+  }
 
   async function createImageSegmenter() {
     const vision = await FilesetResolver.forVisionTasks(
@@ -71,185 +121,89 @@ window.onload = function () {
       },
       outputCategoryMask: true,
       outputConfidenceMasks: false,
-      runningMode: runningMode
+      runningMode: 'IMAGE'
     });
 
     imageSegmenter.getLabels();
-    demosSection.classList.remove("invisible");
   };
-  createImageSegmenter();
 
+  function segmentBirdImage() {
+    if (birdImageCreated) {
 
-  const imageContainers = document.getElementsByClassName(
-    "segmentOnClick"
-  );
+      imageSegmenter.segment(cutOutBirdImage.canvas, handleSegmentationResults);
 
-  // Add click event listeners for the img elements.
-  for (let i = 0; i < imageContainers.length; i++) {
-    imageContainers[i]
-      .getElementsByTagName("img")[0]
-      .addEventListener("click", handleClick);
+    }
   }
 
-  /**
-   * Demo 1: Segmented images on click and display results.
-   */
-  let canvasClick;
-  async function handleClick(event) {
-    // Do not segmented if imageSegmenter hasn't loaded
-    if (imageSegmenter === undefined) {
-      return;
-    }
-    canvasClick = event.target.parentElement.getElementsByTagName("canvas")[0];
-    canvasClick.classList.remove("removed");
-    canvasClick.width = event.target.naturalWidth;
-    canvasClick.height = event.target.naturalHeight;
-    const cxt = canvasClick.getContext("2d");
-    cxt.clearRect(0, 0, canvasClick.width, canvasClick.height);
-    cxt.drawImage(event.target, 0, 0, canvasClick.width, canvasClick.height);
-    event.target.style.opacity = 0;
-    // if VIDEO mode is initialized, set runningMode to IMAGE
-    if (runningMode === "VIDEO") {
-      runningMode = "IMAGE";
-      await imageSegmenter.setOptions({
-        runningMode: runningMode
-      });
-    }
-
-    // imageSegmenter.segment() when resolved will call the callback function.
-    imageSegmenter.segment(event.target, callback);
-  }
-
-  function callback(result) {
-    const cxt = canvasClick.getContext("2d");
+  function handleSegmentationResults(result) {
     const {
       width,
       height
     } = result.categoryMask;
-    let imageData = cxt.getImageData(0, 0, width, height).data;
-    canvasClick.width = width;
-    canvasClick.height = height;
-    let category = "";
-    const mask = result.categoryMask.getAsUint8Array();
-    for (let i in mask) {
-      if (mask[i] > 0) {
-        category = labels[mask[i]];
+
+    // Create a new p5.js image for the mask
+    maskImage = p5.createImage(width, height);
+    maskImage.loadPixels();
+
+    // Access the pixel data from the segmentation mask
+    let imageData = result.categoryMask.containers[0]; // Assuming only one container
+
+    // Access the pixel data from the original image
+    cutOutBirdImage.loadPixels();
+
+    // Iterate through the pixel data and set the mask image pixels
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        let index = i * width + j; // Calculate the index in the 1D array
+        let value = imageData[index]; // Get the pixel value
+
+        // Set the pixel color based on the segmentation mask value
+        if (value > 0) {
+          // Copy the color from the original image
+          let colorIndex = (i * width + j) * 4; // Calculate the color index in the 1D array
+          let r = cutOutBirdImage.pixels[colorIndex];
+          let g = cutOutBirdImage.pixels[colorIndex + 1];
+          let b = cutOutBirdImage.pixels[colorIndex + 2];
+          let a = cutOutBirdImage.pixels[colorIndex + 3];
+          maskImage.set(j, i, p5.color(r, g, b, a)); // Set the color with alpha channel
+        } else {
+          // Set transparent pixel
+          maskImage.set(j, i, p5.color(0, 0, 0, 0));
+        }
       }
-      const legendColor = legendColors[mask[i] % legendColors.length];
-      imageData[i * 4] = (legendColor[0] + imageData[i * 4]) / 2;
-      imageData[i * 4 + 1] = (legendColor[1] + imageData[i * 4 + 1]) / 2;
-      imageData[i * 4 + 2] = (legendColor[2] + imageData[i * 4 + 2]) / 2;
-      imageData[i * 4 + 3] = (legendColor[3] + imageData[i * 4 + 3]) / 2;
     }
-    const uint8Array = new Uint8ClampedArray(imageData.buffer);
-    const dataNew = new ImageData(uint8Array, width, height);
-    cxt.putImageData(dataNew, 0, 0);
-    const p = event.target.parentNode.getElementsByClassName(
-      "classification"
-    )[0];
-    p.classList.remove("removed");
-    p.innerText = "Category: " + category;
+
+
+    // Update the pixels of the mask image
+    maskImage.updatePixels();
+    birdIsSegmented = true;
+
+    // You can now use the maskImage for further processing or visualization
   }
 
-  function callbackForVideo(ImageSegmenterResult) {
-    let imageData = canvasCtx.getImageData(
-      0,
-      0,
-      video.videoWidth,
-      video.videoHeight
-    ).data;
-    const mask = ImageSegmenterResult.categoryMask.getAsFloat32Array();
-    let j = 0;
-    for (let i = 0; i < mask.length; ++i) {
-      const maskVal = Math.round(mask[i] * 255.0);
-      const legendColor = legendColors[maskVal % legendColors.length];
-      imageData[j] = (legendColor[0] + imageData[j]) / 2;
-      imageData[j + 1] = (legendColor[1] + imageData[j + 1]) / 2;
-      imageData[j + 2] = (legendColor[2] + imageData[j + 2]) / 2;
-      imageData[j + 3] = (legendColor[3] + imageData[j + 3]) / 2;
-      j += 4;
-    }
-    const uint8Array = new Uint8ClampedArray(imageData.buffer);
-    const dataNew = new ImageData(
-      uint8Array,
-      video.videoWidth,
-      video.videoHeight
-    );
-    canvasCtx.putImageData(dataNew, 0, 0);
-    if (webcamRunning === true) {
-      window.requestAnimationFrame(predictWebcam);
-    }
+  function createBirdImage() {
+    let birdsDetected = results.detections;
+
+    cutOutBirdImage = p5.get(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY, birdsDetected[0].boundingBox.width, birdsDetected[0].boundingBox.height);
+
+    birdImageCreated = true;
+
+    segmentBirdImage();
   }
 
-  // /********************************************************************
-  // // Demo 2: Continuously grab image from webcam stream and segmented it.
-  // ********************************************************************/
+  function resultBox(x, y, w, h) {
+    p5.push();
+    p5.rectMode(p5.CENTER);
+    p5.fill(255);
+    // p5.noStroke();
+    p5.stroke(0.5);
+    p5.rect(x, y, w, h);
+    p5.pop();
 
-  // Check if webcam access is supported.
-  function hasGetUserMedia() {
-    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    p5.push();
+    p5.imageMode(p5.CENTER);
+    p5.image(maskImage, x, y);
+    p5.pop();
   }
 
-  // Get segmentation from the webcam
-  let lastWebcamTime = -1;
-  async function predictWebcam() {
-    if (video.currentTime === lastWebcamTime) {
-      if (webcamRunning === true) {
-        window.requestAnimationFrame(predictWebcam);
-      }
-      return;
-    }
-    lastWebcamTime = video.currentTime;
-    canvasCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    // Do not segmented if imageSegmenter hasn't loaded
-    if (imageSegmenter === undefined) {
-      return;
-    }
-    // if image mode is initialized, create a new segmented with video runningMode
-    if (runningMode === "IMAGE") {
-      runningMode = "VIDEO";
-      await imageSegmenter.setOptions({
-        runningMode: runningMode
-      });
-    }
-    let startTimeMs = performance.now();
-
-    // Start segmenting the stream.
-    imageSegmenter.segmentForVideo(video, startTimeMs, callbackForVideo);
-  }
-
-  // Enable the live webcam view and start imageSegmentation.
-  async function enableCam(event) {
-    if (imageSegmenter === undefined) {
-      return;
-    }
-
-    if (webcamRunning === true) {
-      webcamRunning = false;
-      enableWebcamButton.innerText = "ENABLE SEGMENTATION";
-    } else {
-      webcamRunning = true;
-      enableWebcamButton.innerText = "DISABLE SEGMENTATION";
-    }
-
-    // getUsermedia parameters.
-    const constraints = {
-      video: true
-    };
-
-    // Activate the webcam stream.
-    //video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
-    video.src = "images/3.mp4";
-    video.addEventListener("loadeddata", predictWebcam);
-  }
-
-  // If webcam supported, add event listener to button.
-  if (hasGetUserMedia()) {
-    enableWebcamButton = document.getElementById(
-      "webcamButton"
-    );
-    enableWebcamButton.addEventListener("click", enableCam);
-  } else {
-    console.warn("getUserMedia() is not supported by your browser");
-  }
-}
+}) // end of p5 sketch
