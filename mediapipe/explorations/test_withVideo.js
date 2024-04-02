@@ -73,7 +73,8 @@ let sketch = new p5(function (p5) {
 
     // Display the new p5 Image object
     if (birdIsSegmented) {
-      p5.image(maskImage, 0, 0);
+      resultBox(p5.width / 2, p5.height / 2, maskImage.width + 20, maskImage.height + 20);
+
     }
   }
 
@@ -190,4 +191,19 @@ let sketch = new p5(function (p5) {
     segmentBirdImage();
   }
 
-})
+  function resultBox(x, y, w, h) {
+    p5.push();
+    p5.rectMode(p5.CENTER);
+    p5.fill(255);
+    // p5.noStroke();
+    p5.stroke(0.5);
+    p5.rect(x, y, w, h);
+    p5.pop();
+
+    p5.push();
+    p5.imageMode(p5.CENTER);
+    p5.image(maskImage, x, y);
+    p5.pop();
+  }
+
+}) // end of p5 sketch
