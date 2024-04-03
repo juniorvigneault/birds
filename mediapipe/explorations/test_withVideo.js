@@ -23,7 +23,7 @@ let labels = [];
 let birdFootage = {
   p5VideoLayer: undefined,
   htmlVideoLayer: undefined,
-  path: 'images/seagull.mov',
+  path: 'images/birds2.mp4',
   isRunning: false,
   width: 640,
   height: 360
@@ -46,6 +46,8 @@ let sketch = new p5(function (p5) {
     // copy the video stream to the canvas and position it under it
     birdFootage.htmlVideoLayer = document.querySelector('video');
     birdFootage.htmlVideoLayer.style.position = 'fixed';
+    birdFootage.htmlVideoLayer.muted = true;
+
     birdFootage.htmlVideoLayer.style.top = '0px';
     birdFootage.htmlVideoLayer.style.zIndex = '-1';
     p5.push();
