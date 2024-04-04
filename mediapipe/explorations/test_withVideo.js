@@ -65,9 +65,25 @@ function openAviary() {
   win2 = window.open("", "", "scrollbars");
   win2.moveTo(0, 0);
   win2.resizeTo(100, 100);
-  // go2();
+  go2();
 }
 
+function go2() {
+  if (winheight >= screen.availHeight - 3) {
+    x = 0;
+  }
+  win2.resizeBy(5, x);
+  winheight += 5;
+  winsize += 5;
+  if (winsize >= screen.width - 5) {
+    // win2.location = temploc;
+    winheight = 100;
+    winsize = 100;
+    x = 5;
+    return;
+  }
+  setTimeout("go2()", 50);
+}
 
 function runP5() {
   let sketch = new p5(function (p5) {
