@@ -47,6 +47,8 @@ let sketch = new p5(function (p5) {
     // initialize bird segmentation
     await createImageSegmenter();
     birdFootage.p5VideoLayer.loop();
+    isDetecting = true;
+
   }
   // run video and detections and draw rectangles around birds
   p5.draw = function () {
@@ -76,6 +78,7 @@ let sketch = new p5(function (p5) {
           // p5.fill(255, 255, 255, 0)
           // p5.stroke(230, 0, 0)
           // p5.rect(box.originX, box.originY, box.width, box.height)
+          p5.fill(0)
           p5.textFont(habitusFont)
           p5.text(Math.floor(birdsDetected[i].categories[0].score * 100) % 100, box.originX, box.originY);
           p5.fill(0);
@@ -98,9 +101,7 @@ let sketch = new p5(function (p5) {
   }
 
   // when clicking the canvas, play video in a loop
-  p5.mousePressed = function () {
-    isDetecting = true;
-  }
+  p5.mousePressed = function () {}
   p5.mouseReleased = function () {
     // isDetecting = false;
   }
@@ -209,14 +210,6 @@ let sketch = new p5(function (p5) {
     }
 
 
-
-    // for (let i = 0; i < birdsDetected.length; i++) {
-    //   //   let bird = birdsDetected[i];
-    //   let cutOutBirdImage = p5.get(birdsDetected[i].boundingBox.originX, birdsDetected[i].boundingBox.originY, birdsDetected[i].boundingBox.width, birdsDetected[i].boundingBox.height);
-    //   //   birdImage.push(birdFrames);
-    //   allBirdImages.push(cutOutBirdImage);
-    // };
-
     birdImageCreated = true;
 
     // console.log(birdsDetected.length, allBirdImages.length)
@@ -239,40 +232,56 @@ let sketch = new p5(function (p5) {
   }
 
 }) // end of p5 sketch
-
 let sketch2 = new p5(function (p5) {
+  let trailFrames = []; // Array to store previous frames for the trail effect
+  let maxTrailFrames = 200; // Maximum number of frames to keep in the trail
+
   p5.setup = function () {
     p5.createCanvas(birdFootage.width, birdFootage.height);
   };
 
   p5.draw = function () {
-    // p5.background(0);
+    p5.background(237, 3, 3);
     if (birdImageCreated) {
       if (birdsDetected.length > 0) {
-
-        p5.imageMode();
+        p5.imageMode(p5.CORNER);
 
         drawDetectedBirds();
-        // for (let i = 0; i < birdsDetected.length; i++) {
-        //   //   let bird = birdsDetected[i];
+      }
+    }
 
-        //   //     let cutOutBirdImage = allBirdImages[j];
-        //   p5.image(allBirdImages[0], birdsDetected[i].boundingBox.originX, birdsDetected[i].boundingBox.originY, birdsDetected[i].boundingBox.width, birdsDetected[i].boundingBox.height)
+    // Draw the trail frames even if there are no detections
+    drawTrailFrames();
+  }
 
-        // }
+  function drawDetectedBirds() {
+    if (birdImageCreated) {
+      for (let i = 0; i < allBirdImages.length; i++) {
+        let bird = allBirdImages[i];
+        let box = birdsDetected[i].boundingBox;
 
-        // }
+        // Draw the current frame of detected birds on the main canvas
+        p5.image(bird, box.originX, box.originY, box.width, box.height);
+
+        // Save the current frame in the trailFrames array
+        trailFrames.push({
+          birdImage: bird,
+          box: box
+        });
+
+        // Limit the number of frames in the trailFrames array
+        if (trailFrames.length > maxTrailFrames) {
+          trailFrames.shift(); // Remove the oldest frame if the array exceeds the maximum number of frames
+        }
       }
     }
   }
 
-  function drawDetectedBirds() {
-    if (allBirdImages.length > 0) {
-      for (let i = 0; i < allBirdImages.length; i++) {
-        let bird = allBirdImages[i];
-        let box = birdsDetected[i].boundingBox;
-        p5.image(bird, box.originX, box.originY, box.width, box.height);
-      }
+  function drawTrailFrames() {
+    // Draw the trail frames
+    for (let i = 0; i < trailFrames.length; i++) {
+      let frame = trailFrames[i];
+      p5.image(frame.birdImage, frame.box.originX, frame.box.originY, frame.box.width, frame.box.height);
     }
   }
 });
