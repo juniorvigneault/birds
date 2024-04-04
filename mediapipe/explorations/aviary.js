@@ -9,6 +9,8 @@ import {
 let objectDetector;
 let runningMode = "VIDEO";
 let habitusFont;
+
+let birdWindows = [];
 // store the results of the model
 let results;
 let isDetecting = false;
@@ -32,11 +34,6 @@ let birdFootage = {
     width: 640,
     height: 360
 }
-
-
-
-
-
 
 let sketch = new p5(function (p5) {
 
@@ -64,12 +61,11 @@ let sketch = new p5(function (p5) {
         // p5.image(birdFootage.p5VideoLayer, 0, 0, birdFootage.width, birdFootage.height);
         p5.pop();
         // if the the model is initialized, run detection on video and draw rectangles around birds
-        if (objectDetector && isDetecting) {
+        if (objectDetector) {
             // put the detections of the video in results
             results = objectDetector.detectForVideo(birdFootage.htmlVideoLayer, p5.millis());
 
             birdsDetected = results.detections;
-            console.log('hello')
             // console.log(birdsDetected.categories)
             // draw a rect around each bird
             if (birdsDetected.length > 0) {
@@ -113,9 +109,67 @@ let sketch = new p5(function (p5) {
             allBirdImages.push(birdImage);
         }
 
-        birdImageCreated = true;
+        if (birdsDetected.length > 0) {
+            let newWindow = window.open("", "_blank", "width=400,height=400");
+        }
+        // Close excess windows if the maximum threshold is exceeded
+        while (birdWindows.length > 5) {
+            let windowToClose = birdWindows.pop();
+            windowToClose.close();
+        }
 
-    };
+        // if (objectDetector) {
+        //     for (let i = 0; i < allBirdImages.length; i++) {
+        //         let birdImage = allBirdImages[i];
+        //         let bird = birdsDetected[i];
+        //         let box = birdsDetected[i].boundingBox;
+
+        //         // Check if the maximum threshold is reached
+        //         if (birdWindows.length >= 5) {
+        //             alert("Maximum number of popups reached. Please close some windows to continue.");
+        //             break; // Exit the loop
+        //         }
+
+
+        // let newWindow = window.open("", "_blank", "width=400,height=400");
+        // if (newWindow) {
+
+        // }
+        // Check if the new window is opened successfully
+        // if (newWindow) {
+        //     // Set position of the new window to the position of the detection
+        //     newWindow.moveTo(box.originX, box.originY);
+
+        //     // Create an image element in the new window and set the bird image as its source
+        //     let imgElement = newWindow.document.createElement('img');
+        //     imgElement.src = birdImage.canvas.toDataURL(); // Convert the bird image to data URL
+        //     imgElement.style.width = '100%'; // Make sure the image fills the window width
+        //     imgElement.style.height = '100%'; // Make sure the image fills the window height
+        //     newWindow.document.body.appendChild(imgElement); // Append the image to the new window
+
+        //     // Push the reference to the new window to the array
+        //     birdWindows.push(newWindow);
+        // } else {
+        //     alert("Popup blocked! Please allow popups to view bird images.");
+        // }
+
+
+        // }
+        // }
+
+    }
+
+    function drawDetectedBirds() {
+        if (birdImageCreated) {
+            for (let i = 0; i < allBirdImages.length; i++) {
+                let bird = allBirdImages[i];
+                let box = birdsDetected[i].boundingBox;
+
+                // Draw the current frame of detected birds on the main canvas
+                p5.image(bird, box.originX, box.originY, box.width, box.height);
+            }
+        }
+    }
 
     function resultBox(x, y, w, h) {
         p5.push();
