@@ -119,7 +119,6 @@ let sketch = new p5(function (p5) {
     imageSegmenter = await ImageSegmenter.createFromOptions(vision, {
       baseOptions: {
         modelAssetPath: "sharedModels/1.tflite",
-        //"sharedModels/1.tflite"
       },
       outputCategoryMask: true,
       outputConfidenceMasks: false,
@@ -207,5 +206,4 @@ let sketch = new p5(function (p5) {
     p5.image(maskImage, x, y);
     p5.pop();
   }
-
 }) // end of p5 sketch

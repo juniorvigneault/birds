@@ -105,7 +105,25 @@ SO.
 
 Let me walk myself through the experiments that led to all that brain dump.
 
+Experiment 1 -
+Object detection on live video feed of birds holding mouse click down, and when pressing "S" key, a new image is then created from the pixels in the bounding box of the detection. Then this new image is segmented and displayed on a white background. This is what I would have used to then write the generated characteristics.
 
+![bird experiment 1](assets/images/bird_experiment_1.png)
 
+I think maybe I worked too long on this but kind of lost its touch a bit. The tough thing about case 1 (programing an elaborate interactive joke), is that you have to sort of trust the process because as some point you don't laugh yourself anymore. You're just building this thing that hopefully will be funny in the end because of your initial idea. Also, in the context of this project where I needed to take a risk and experiment with stuff, this felt a bit too much like "I have an idea and I'm going to just make it" instead of "lets try to experiment with this and that and see what happens?". Like i'm closing myself options and new things. Like maybe the comedian route is not even research-creation at all in a sense. I guess it's more just... creation? Also, the segmentation here works well because it is one bird on a perfect blue sky in slow motion, but in a more complex context it just didnt work too well. Like event this still really good footage produces weird results:
 
+![bird experiment 1.2](assets/images/bird_experiment_1.2.png)
 
+SO yeah I also tried with my own footage and it was really not working well (the goal being to develop this platform where people can document their own birds with footage not perfect). This comes back to the idea of having something *WORKING* or not *WORKING*. I think I have to make things that are not working FIRST to see how humour emerges from that and then maybe that would eventually lead to be able to make something that is WORKING? I guess that is literally my research. So I guess i'm just stating really obvious things at this point.
+
+From there I decided to scrap segmentation and work with detections only. My new goal: be able to just copy the pixels inside the bouding boxes of each detection and past that on a second canvas. Groundbreaking. I started to think a bit and got an idea where I could create this sort of cartography of birds leaving trails behind. Like the birds would draw on the canvas based on their position basically.
+
+![sketch bird maps](assets/images/sketch_birds_map.jpeg)
+
+ So yeah not funny at all and not even humour related. I just wanted to make that IMMEDIATELY for some reason. So I took about three weeks of valuable time to make that thing. And it looks NICE (really). It went into several transformations, like i decided to copy the entire bird image instead of pixels. It was just more visually interesting. At first all the bird images were just a top one another.
+
+![bird map experiment 1](assets/images/bird_map_1.png)
+
+It was nice to see the pile up, but I kind of enjoyed also seeing the background at the beginning and then seeing the trails cover the background. So I decided to keep the trails but have them dissappear when there is more than 100 or so. I started to look very brutalist aesthetically and so I looked up work of brutalist graphic design on pinterest and decided to put the background red to for contrast. So I ended up with a sort of generative graphic design-ish thing. I don't really know what this says or is. I think its a cool experiment. 
+
+But it did send me on a sort of interesting tangeant about my thesis : A
