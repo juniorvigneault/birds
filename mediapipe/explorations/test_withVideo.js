@@ -48,17 +48,18 @@ let sketch = new p5(function (p5) {
     await createImageSegmenter();
     birdFootage.p5VideoLayer.loop();
     isDetecting = true;
+    birdFootage.htmlVideoLayer = document.querySelector('video');
+    birdFootage.htmlVideoLayer.muted = true;
+    birdFootage.htmlVideoLayer.style.position = 'fixed';
+    birdFootage.htmlVideoLayer.style.top = '0px';
+    birdFootage.htmlVideoLayer.style.zIndex = '-1';
+    birdFootage.htmlVideoLayer.currentTime = 50;
 
   }
   // run video and detections and draw rectangles around birds
   p5.draw = function () {
     p5.background(0);
     // copy the video stream to the canvas and position it under it
-    birdFootage.htmlVideoLayer = document.querySelector('video');
-    birdFootage.htmlVideoLayer.muted = true;
-    birdFootage.htmlVideoLayer.style.position = 'fixed';
-    birdFootage.htmlVideoLayer.style.top = '0px';
-    birdFootage.htmlVideoLayer.style.zIndex = '-1';
 
     p5.push();
     p5.image(birdFootage.p5VideoLayer, 0, 0, birdFootage.width, birdFootage.height);
@@ -233,11 +234,13 @@ let sketch = new p5(function (p5) {
 
 }) // end of p5 sketch
 let sketch2 = new p5(function (p5) {
-  let trailFrames = []; // Array to store previous frames for the trail effect
-  let maxTrailFrames = 200; // Maximum number of frames to keep in the trail
+  let circleMask;
+  let circleMaskSize = 200;
 
   p5.setup = function () {
     p5.createCanvas(birdFootage.width, birdFootage.height);
+    circleMask = p5.createGraphics(circleMaskSize, circleMaskSize);
+
   };
 
   p5.draw = function () {
@@ -250,38 +253,21 @@ let sketch2 = new p5(function (p5) {
       }
     }
 
-    // Draw the trail frames even if there are no detections
-    drawTrailFrames();
   }
 
   function drawDetectedBirds() {
     if (birdImageCreated) {
-      for (let i = 0; i < allBirdImages.length; i++) {
-        let bird = allBirdImages[i];
-        let box = birdsDetected[i].boundingBox;
+      let bird = allBirdImages[0];
+      let box = birdsDetected[0].boundingBox;
 
-        // Draw the current frame of detected birds on the main canvas
-        p5.image(bird, box.originX, box.originY, box.width, box.height);
+      circleMask.fill(0, 0, 0, 255);
+      circleMask.circle(circleMaskSize / 2, circleMaskSize / 2, circleMaskSize);
 
-        // Save the current frame in the trailFrames array
-        trailFrames.push({
-          birdImage: bird,
-          box: box
-        });
+      bird.mask(circleMask);
 
-        // Limit the number of frames in the trailFrames array
-        if (trailFrames.length > maxTrailFrames) {
-          trailFrames.shift(); // Remove the oldest frame if the array exceeds the maximum number of frames
-        }
-      }
-    }
-  }
+      p5.imageMode(p5.CENTER)
 
-  function drawTrailFrames() {
-    // Draw the trail frames
-    for (let i = 0; i < trailFrames.length; i++) {
-      let frame = trailFrames[i];
-      p5.image(frame.birdImage, frame.box.originX, frame.box.originY, frame.box.width, frame.box.height);
+      p5.image(bird, p5.width / 2, p5.height / 2, 300, 300);
     }
   }
 });
