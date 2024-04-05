@@ -24,6 +24,8 @@ let labels = [];
 let birdsDetected = [];
 // let cutOutBirdImage;
 let allBirdImages = [];
+let popupOpened = false;
+let newWindow;
 
 // video variable for footage 
 let birdFootage = {
@@ -41,13 +43,22 @@ let sketch = new p5(function (p5) {
         habitusFont = p5.loadFont('assets/fonts/Habitus-Medium.otf')
     }
     p5.setup = async function () {
+
         // create a video element from the video footage for the canvas
         birdFootage.p5VideoLayer = p5.createVideo(birdFootage.path);
         p5.createCanvas(birdFootage.width, birdFootage.height);
         // initialize bird detection 
         await initializeObjectDetector();
         birdFootage.p5VideoLayer.loop();
-    }
+
+        let newWindow = window.open("bird.html", "_blank", "width=200,height=200");
+
+
+
+    };
+
+
+
     // run video and detections and draw rectangles around birds
     p5.draw = function () {
         // p5.background(0);
@@ -81,9 +92,13 @@ let sketch = new p5(function (p5) {
                     p5.ellipse(box.originX - 10, box.originY + 5, 5, 5)
                     p5.pop();
                 }
-                createBirdImages();
+                // createBirdImages();
             }
         }
+    }
+
+    p5.mousePressed = function () {
+
     }
 
     async function initializeObjectDetector() {
@@ -109,55 +124,87 @@ let sketch = new p5(function (p5) {
             allBirdImages.push(birdImage);
         }
 
-        if (birdsDetected.length > 0) {
-            let newWindow = window.open("", "_blank", "width=400,height=400");
-        }
-        // Close excess windows if the maximum threshold is exceeded
-        while (birdWindows.length > 5) {
-            let windowToClose = birdWindows.pop();
-            windowToClose.close();
-        }
-
-        // if (objectDetector) {
+        // if (birdImageCreated) {
         //     for (let i = 0; i < allBirdImages.length; i++) {
-        //         let birdImage = allBirdImages[i];
-        //         let bird = birdsDetected[i];
+        //         let bird = allBirdImages[i];
         //         let box = birdsDetected[i].boundingBox;
 
-        //         // Check if the maximum threshold is reached
-        //         if (birdWindows.length >= 5) {
-        //             alert("Maximum number of popups reached. Please close some windows to continue.");
-        //             break; // Exit the loop
-        //         }
+        //         // Draw the current frame of detected birds on the main canvas
+        //         p5.image(bird, box.originX, box.originY, box.width, box.height);
+        //     }
 
 
-        // let newWindow = window.open("", "_blank", "width=400,height=400");
-        // if (newWindow) {
-
-        // }
-        // Check if the new window is opened successfully
-        // if (newWindow) {
-        //     // Set position of the new window to the position of the detection
-        //     newWindow.moveTo(box.originX, box.originY);
-
-        //     // Create an image element in the new window and set the bird image as its source
-        //     let imgElement = newWindow.document.createElement('img');
-        //     imgElement.src = birdImage.canvas.toDataURL(); // Convert the bird image to data URL
-        //     imgElement.style.width = '100%'; // Make sure the image fills the window width
-        //     imgElement.style.height = '100%'; // Make sure the image fills the window height
-        //     newWindow.document.body.appendChild(imgElement); // Append the image to the new window
-
-        //     // Push the reference to the new window to the array
-        //     birdWindows.push(newWindow);
-        // } else {
-        //     alert("Popup blocked! Please allow popups to view bird images.");
-        // }
+        if (birdsDetected.length > 0 && !popupOpened) {
+            // Open a new window for the first detected bird
+            newWindow = window.open("", "_blank", `width=${popUpWidth},height=${popUpHeight}`);
+            popupOpened = true; // Set the flag to true to prevent opening multiple popups
+        }
 
 
-        // }
-        // }
+        p5.image(allBirdImages[0], box.originX, box.originY, popUpWidth, popUpHeight);
 
+        let popUpWidth = birdsDetected[0].boundingBox.width;
+        let popUpHeight = birdsDetected[0].boundingBox.height;
+        newWindow.resizeTo(popUpWidth, popUpHeight);
+        // newWindow.moveTo(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY);
     }
+
+
+    function createBirdPopUp() {
+        console.log('hello')
+    }
+
+    // function createBirdPopUp() {
+
+
+    // if (birdsDetected.length > 0) {
+    //     let newWindow = window.open("", "_blank", "width=400,height=400");
+    // }
+    // Close excess windows if the maximum threshold is exceeded
+    // while (birdWindows.length > 5) {
+    //     let windowToClose = birdWindows.pop();
+    //     windowToClose.close();
+    // }
+
+    // if (objectDetector) {
+    //     for (let i = 0; i < allBirdImages.length; i++) {
+    //         let birdImage = allBirdImages[i];
+    //         let bird = birdsDetected[i];
+    //         let box = birdsDetected[i].boundingBox;
+
+    //         // Check if the maximum threshold is reached
+    //         if (birdWindows.length >= 5) {
+    //             alert("Maximum number of popups reached. Please close some windows to continue.");
+    //             break; // Exit the loop
+    //         }
+
+    // let newWindow = window.open("", "_blank", "width=400,height=400");
+    // if (newWindow) {
+
+    // }
+    // Check if the new window is opened successfully
+    // if (newWindow) {
+    //     // Set position of the new window to the position of the detection
+    //     newWindow.moveTo(box.originX, box.originY);
+
+    //     // Create an image element in the new window and set the bird image as its source
+    //     let imgElement = newWindow.document.createElement('img');
+    //     imgElement.src = birdImage.canvas.toDataURL(); // Convert the bird image to data URL
+    //     imgElement.style.width = '100%'; // Make sure the image fills the window width
+    //     imgElement.style.height = '100%'; // Make sure the image fills the window height
+    //     newWindow.document.body.appendChild(imgElement); // Append the image to the new window
+
+    //     // Push the reference to the new window to the array
+    //     birdWindows.push(newWindow);
+    // } else {
+    //     alert("Popup blocked! Please allow popups to view bird images.");
+    // }
+
+
+    // }
+    // }
+
+    // }
 
     function drawDetectedBirds() {
         if (birdImageCreated) {
