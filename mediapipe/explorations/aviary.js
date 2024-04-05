@@ -37,6 +37,12 @@ let birdFootage = {
     height: 360
 }
 
+newWindow = window.open("bird.html", "_blank", "width=200,height=200");
+setTimeout(() => {
+    newWindow.postMessage('test')
+}, 1000)
+
+
 let sketch = new p5(function (p5) {
 
     p5.preload = function () {
@@ -51,7 +57,6 @@ let sketch = new p5(function (p5) {
         await initializeObjectDetector();
         birdFootage.p5VideoLayer.loop();
 
-        let newWindow = window.open("bird.html", "_blank", "width=200,height=200");
 
 
 
@@ -118,7 +123,8 @@ let sketch = new p5(function (p5) {
     function createBirdImages() {
         allBirdImages = []; // Reset the array
         birdsDetected = results.detections;
-
+        let popUpWidth = birdsDetected[0].boundingBox.width;
+        let popUpHeight = birdsDetected[0].boundingBox.height;
         for (let i = 0; i < birdsDetected.length; i++) {
             let birdImage = birdFootage.p5VideoLayer.get(birdsDetected[i].boundingBox.originX, birdsDetected[i].boundingBox.originY, birdsDetected[i].boundingBox.width, birdsDetected[i].boundingBox.height);
             allBirdImages.push(birdImage);
@@ -141,12 +147,10 @@ let sketch = new p5(function (p5) {
         }
 
 
-        p5.image(allBirdImages[0], box.originX, box.originY, popUpWidth, popUpHeight);
+        // p5.image(allBirdImages[0], box.originX, box.originY, popUpWidth, popUpHeight);
 
-        let popUpWidth = birdsDetected[0].boundingBox.width;
-        let popUpHeight = birdsDetected[0].boundingBox.height;
         newWindow.resizeTo(popUpWidth, popUpHeight);
-        // newWindow.moveTo(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY);
+        newWindow.moveTo(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY);
     }
 
 

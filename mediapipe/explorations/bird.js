@@ -1,11 +1,10 @@
-window.onmessage = function (event) {
-    // Retrieve the image path from the message data
-    let imagePath = event.data.path;
+    window.addEventListener('message', receiveMessage, false);
 
-    // Find the existing img element in the document
-    let img = document.querySelector('img');
+    function receiveMessage(event) {
+        // if (event.origin === 'http://127.0.0.1:5500/origin1.html') {
+        //alert('Received message: ' + event.data.data);
+        console.log(event.data)
 
-    // Set the src attribute of the existing img element to the received image path
-    img.src = imagePath;
-    console.log(img);
-};
+        // }
+
+    }

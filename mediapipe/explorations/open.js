@@ -30,7 +30,7 @@ function openAviary() {
   win2 = window.open("aviary.html", "", "scrollbars");
   win2.moveTo(0, 0);
   win2.resizeTo(100, 100);
-  // go2();
+  go2();
 }
 
 
