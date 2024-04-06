@@ -126,4 +126,27 @@ From there I decided to scrap segmentation and work with detections only. My new
 
 It was nice to see the pile up, but I kind of enjoyed also seeing the background at the beginning and then seeing the trails cover the background. So I decided to keep the trails but have them dissappear when there is more than 100 or so. I started to look very brutalist aesthetically and so I looked up work of brutalist graphic design on pinterest and decided to put the background red to for contrast. So I ended up with a sort of generative graphic design-ish thing. I don't really know what this says or is. I think its a cool experiment. 
 
-But it did send me on a sort of interesting tangeant about my thesis : A
+![bird map experiment final](assets/images/bird_map_final.png)
+
+But it did send me on a sort of interesting tangeant about my thesis : am I interested in looking at what happens when designing things informed by humour theory - and not trying to make them funny necessarily - or to look at how to make funny things using humour theory. Do the things I make have to be funny in the end? I don't really want to have to measure any of that. The idea of this experiment was born because I used humour theory to experiment with stuff before that. In the end my thoughts on this is that I should try to push the humour theory to the max if I want to make my research worthwhile, even if the output is not LOL funny. I think this experiment did not push the humour theory enough to be considered part of the whole thing. But still was interesting to think about the output this way. 
+
+At this point I felt a bit lost. Reminder: I have to present a fully finished project by the end of the semester, and It didn't feel right to present the trail experiment because it felt a bit disconnected from my research and shallow conceptually EVEN though it is really beautiful and i could look at it for hours (no joke). I brainstormed a bit and came back to an idea I had earlier in the process which I DID NOT mention before this. Inline with my ontology exhange, I was thinking about using the spontaneity of the living to manipulate things in the browser. I could use the position of the birds to move windows or do specific things inside the browser for example. I was thinking this would probably relate more to the incongruity theory though. But at this point in the assignment I understood that I should not limit myself to my own thesis and was encouraged to make something a bit out there that was not necessarily 100% about the themese i'm looking at in my thesis. I'm still trying to make this idea come to life so more on that at 11. 
+
+BUT. (big journal entry today)
+
+I did also do something else that I want to touch on. So while I was trying to implement that birds would appear in pop up windows, i started programming and ran my code on a live server. I made a mistake in my code and suddenly, for every frame of every bird detected in the video, a pop up started to open with an image of the the bird. My computer was out of control as literally thousands of pop ups were opening. Three things happened: 
+1. My computer was not responding so i had to manually reset it BUT before -
+2. It made me laugh, the amount of popus oppening was kind of hilarious. So again, breaking things is funny i guess.
+3. The images in each of the pop up were really funny because there were all the same size, so birds started to be distorted to fit the size of each popup.
+
+I was able to take a screenshot of a couple of these popups for reference before my computer was completely unresponsive. I chose 9 of these popups that I thought were funny and asked myself why they were (funny).
+
+![bird pop up error](assets/images/dark_souls_popups.png)
+
+Then I realized that the deformation of the birds by the size of the browser window was making them really funny and gave them more of a personality or intention? Also the fact that it is a random frame taken puts the spotlight at a precise moment where they could be funny. Not all were funny in the batch of around 50 I managed to screenshot, but those were. So I figured this: When detecting a bird, a living thing, and randomly stopping on a frame of the detection with a slight distortion, then it becomes funny. So while I was stuck in my popup idea (the code was not working and I needed help), I decided to work on another version of the map bird, and to create a sort of point of focus on the detections with a specific width and height. Like a lens to isolate specific moments of the detection. I'm not 100% sure of where I want to go with this, but I'm thinking that if I accentuate the intention of the birds with sound, I could be having something really interesting. I'm thinking that I could have a bunch of short samples of music that would accompany the bird detections and sort of frame the personality of the bird that is highlighted even more? So everytime it jumps to a different bird, it would trigger a different sample. Sometimes it would be funny and sometimes not I'm guessing. But yeah following what I learned from the pop up failure, I feel like isolating the birds with a bit of distortion and accompanying that with a random characteristic to make them into something they are unaware, to give them a personality without consent in a sense, would make them ridiculous and would trigger the superiotity theory. So for now I have this but thinking of pushing this further (i wish i could put gifs in here....)
+
+![bird pop up error](assets/images/bird_focus_point.png)
+
+So the circle would be the lens through which the birds are being seen through. 
+
+WOAH. Good talk.
