@@ -26,21 +26,19 @@ let birdsDetected = [];
 let allBirdImages = [];
 let popupOpened = false;
 let newWindow;
-
+let messageSent;
+let allPopUps = [];
 // video variable for footage 
 let birdFootage = {
     p5VideoLayer: undefined,
     htmlVideoLayer: undefined,
-    path: 'images/birds_big.mp4',
+    path: 'images/birds2.mp4',
     isRunning: false,
     width: 640,
     height: 360
 }
 
-newWindow = window.open("bird.html", "_blank", "width=200,height=200");
-setTimeout(() => {
-    newWindow.postMessage('test')
-}, 1000)
+
 
 
 let sketch = new p5(function (p5) {
@@ -57,7 +55,11 @@ let sketch = new p5(function (p5) {
         await initializeObjectDetector();
         birdFootage.p5VideoLayer.loop();
 
-
+        birdFootage.htmlVideoLayer = document.querySelector('video');
+        birdFootage.htmlVideoLayer.muted = true;
+        birdFootage.htmlVideoLayer.style.position = 'fixed';
+        birdFootage.htmlVideoLayer.style.top = '0px';
+        birdFootage.htmlVideoLayer.currentTime = 50;
 
 
     };
@@ -68,10 +70,7 @@ let sketch = new p5(function (p5) {
     p5.draw = function () {
         // p5.background(0);
         // copy the video stream to the canvas and position it under it
-        birdFootage.htmlVideoLayer = document.querySelector('video');
-        birdFootage.htmlVideoLayer.muted = true;
-        birdFootage.htmlVideoLayer.style.position = 'fixed';
-        birdFootage.htmlVideoLayer.style.top = '0px';
+
         // birdFootage.htmlVideoLayer.style.zIndex = '-1';
         p5.push();
         // p5.image(birdFootage.p5VideoLayer, 0, 0, birdFootage.width, birdFootage.height);
@@ -85,26 +84,57 @@ let sketch = new p5(function (p5) {
             // console.log(birdsDetected.categories)
             // draw a rect around each bird
             if (birdsDetected.length > 0) {
-                for (let i = 0; i < birdsDetected.length; i++) {
-                    p5.push();
-                    let box = birdsDetected[i].boundingBox;
-                    // p5.fill(255, 255, 255, 0)
-                    // p5.stroke(230, 0, 0)
-                    // p5.rect(box.originX, box.originY, box.width, box.height)
-                    p5.textFont(habitusFont)
-                    p5.text(Math.floor(birdsDetected[i].categories[0].score * 100) % 100, box.originX, box.originY);
-                    p5.fill(0);
-                    p5.ellipse(box.originX - 10, box.originY + 5, 5, 5)
-                    p5.pop();
-                }
-                // createBirdImages();
+                // for (let i = 0; i < birdsDetected.length; i++) {
+                //     p5.push();
+                //     let box = birdsDetected[i].boundingBox;
+                //     // p5.fill(255, 255, 255, 0)
+                //     // p5.stroke(230, 0, 0)
+                //     // p5.rect(box.originX, box.originY, box.width, box.height)
+                //     p5.textFont(habitusFont)
+                //     p5.text(Math.floor(birdsDetected[i].categories[0].score * 100) % 100, box.originX, box.originY);
+                //     p5.fill(0);
+                //     p5.ellipse(box.originX - 10, box.originY + 5, 5, 5)
+                //     p5.pop();
+                // }
+                createBirdImages();
+                // sendMessage(birdsDetected);
+                // sendMessage(allBirdImages);
+                sendMessage();
+
             }
         }
     }
 
-    p5.mousePressed = function () {
+    function sendMessage() {
+
+        if (!messageSent) {
+            newWindow = window.open("bird.html", "_blank", "width=200,height=200,location=no");
+            allPopUps.push(newWindow);
+            setTimeout(() => {
+                allPopUps[0].postMessage(allBirdImages[0]);
+            }, 1000)
+        } else {
+            // for (let i = 0; i < allPopUps.length; i++) {
+            //     if (birdImageCreated) {
+            //         for (let j = 0; j < allBirdImages.length; j++) {
+
+
+
+            //             allPopUps[i].postMessage(allBirdImages[j]);
+
+            //         }
+            //     }
+            // }
+        }
+        messageSent = true;
 
     }
+
+    function drawDetectedBirds() {
+
+    }
+
+
 
     async function initializeObjectDetector() {
         const vision = await FilesetResolver.forVisionTasks(
@@ -126,10 +156,19 @@ let sketch = new p5(function (p5) {
         let popUpWidth = birdsDetected[0].boundingBox.width;
         let popUpHeight = birdsDetected[0].boundingBox.height;
         for (let i = 0; i < birdsDetected.length; i++) {
-            let birdImage = birdFootage.p5VideoLayer.get(birdsDetected[i].boundingBox.originX, birdsDetected[i].boundingBox.originY, birdsDetected[i].boundingBox.width, birdsDetected[i].boundingBox.height);
-            allBirdImages.push(birdImage);
+            let birdCanvas = birdFootage.p5VideoLayer.get(birdsDetected[i].boundingBox.originX, birdsDetected[i].boundingBox.originY, birdsDetected[i].boundingBox.width, birdsDetected[i].boundingBox.height);
+            // Convert canvas to data URL
+            let dataURL = birdCanvas.canvas.toDataURL();
+            allBirdImages.push(dataURL);
         }
 
+        if (messageSent) {
+            newWindow.innerWidth = popUpWidth;
+            newWindow.innerHeight = popUpHeight;
+            newWindow.resizeTo(popUpWidth, popUpHeight + 65);
+
+            newWindow.moveTo(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY);
+        }
         // if (birdImageCreated) {
         //     for (let i = 0; i < allBirdImages.length; i++) {
         //         let bird = allBirdImages[i];
@@ -140,17 +179,9 @@ let sketch = new p5(function (p5) {
         //     }
 
 
-        if (birdsDetected.length > 0 && !popupOpened) {
-            // Open a new window for the first detected bird
-            newWindow = window.open("", "_blank", `width=${popUpWidth},height=${popUpHeight}`);
-            popupOpened = true; // Set the flag to true to prevent opening multiple popups
-        }
-
-
         // p5.image(allBirdImages[0], box.originX, box.originY, popUpWidth, popUpHeight);
 
-        newWindow.resizeTo(popUpWidth, popUpHeight);
-        newWindow.moveTo(birdsDetected[0].boundingBox.originX, birdsDetected[0].boundingBox.originY);
+
     }
 
 
@@ -210,17 +241,6 @@ let sketch = new p5(function (p5) {
 
     // }
 
-    function drawDetectedBirds() {
-        if (birdImageCreated) {
-            for (let i = 0; i < allBirdImages.length; i++) {
-                let bird = allBirdImages[i];
-                let box = birdsDetected[i].boundingBox;
-
-                // Draw the current frame of detected birds on the main canvas
-                p5.image(bird, box.originX, box.originY, box.width, box.height);
-            }
-        }
-    }
 
     function resultBox(x, y, w, h) {
         p5.push();
