@@ -95,8 +95,7 @@ let sketch = new p5(function (p5) {
   p5.draw = function () {
     p5.frameRate(25);
     // p5.background(0);
-
-    p5.background(237, 3, 3);
+    p5.background(255);
     // copy the video stream to the canvas and position it under it
     p5.push();
     p5.imageMode(p5.CENTER);
@@ -108,6 +107,8 @@ let sketch = new p5(function (p5) {
       results = objectDetector.detectForVideo(birdFootage.videoElement, p5.millis());
 
       birdsDetected = results.detections;
+      console.log(birdsDetected)
+
       // draw a rect around each bird
       if (birdsDetected.length > 0) {
         createBirdImages();
