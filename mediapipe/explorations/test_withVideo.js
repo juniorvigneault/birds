@@ -28,7 +28,7 @@ let detectedBirdHistory = []; // Array to store the history of detected birds
 let birdFootage = {
   videoFeed: undefined,
   videoElement: undefined,
-  path: 'images/birds2.mp4',
+  path: 'images/seagull.mov',
   isRunning: false,
   width: 640,
   height: 360
