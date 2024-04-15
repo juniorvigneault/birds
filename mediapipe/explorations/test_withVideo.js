@@ -28,7 +28,7 @@ let maxTrailFrames = 400; // Maximum number of frames to keep in the trail
 let birdFootage = {
   p5VideoLayer: undefined,
   htmlVideoLayer: undefined,
-  path: 'images/birds2.mp4',
+  path: 'images/birds_insta.mp4',
   isRunning: false,
   width: 640,
   height: 360,
