@@ -182,13 +182,41 @@ I tried adding the live detections as bird symbols, to show how many birds were 
 I ended up with a final output that is very similar but with information and instructions (mouse press and hold) in an about section up top. So this is the final product I presented in class:
 
 ![photoshop mockup](assets/images/presentation_final.png)
+![photoshop mockup](assets/images/about_screenshot.png)
 
-- Not knowing when it changes to another bird when detection switches off
-- When no detections but mouse is down, switch video
-- Working with big videos / wanting more diversity / free of rights / videos on line?
-- Birds? Rocks for example
-- Still not fully bug embracing? Perfect point between comdedic set up to punchline and embracing errors in the program (which are bound to happen) OR the whole thing just becomes boring at one point or predictable or straightforward less fluid. Should i try to solve them technically or should I try to solve them comedically, meaning make humour out of it instead of trying to find ways to hide or fix them which undoubtedly will bring up other issues. For me it feels like it either has to be ENTIRELY free of bugs and errors OR nothing matters and its all part of the fun. I guess its maybe different for people who are not the designers but. 
-- Instructions unclear when presnting
-- Bird Vibe Check - ?? new direction and title
-- Trash p5 entirely and rebuild on vanilla javascript to ensure better performance
-- Try circles as detections instead of rectangles? random.
+## March 29 2024 - AFTERNOON
+
+I presented this work in front of some faculty and other students. I literally whipped my presentation in 20 minutes because I was debugging something until the last minute (classic). I think I did good, although I regret not having talked about the process much and more the finished thing (which was what was asked of us but made it seem like it was disconnected from its research purposes since my research is a lit about process?). 
+I ended up getting a lot of laughs so it was good, like it was genuinly funny altough I wasn't too aprehensive about that, I had a really good feeling about that having shown it to other people before and also just because I was still laughing when interacting with it even after 1000000 times of trying it. 
+
+Here are problems/things i want to change/fix before making it official:
+- So sometimes the detection switches to another random bird when the previous one stops being detected, and this makes it a bit weird sometimes because the song continues playing. 
+  - Potential solution: Still images or trying to slow down the video even more
+- Sometimes there is just one bird, but the detection stops and song is still playing even though there are no birds at all
+  - Solution: Add a conditionnal that when detections.length = 0, stop the song currently playing
+- So right now I have like 12 videos of 5 minutes, some are reppetitive and are very similar. I kinda want more diversity because it keeps the whole thing interesting, but I want to figure out a way were it is efficient in terms of performances, like i dont want to load a lot of videos when the user arrives on the page. I also want the videos to be free of rights and fitting with the project. 
+  - Potential solution: find an online library of perfect bird videos and load them randomly when one detection is done? 
+- **Ok so this is a big one**: I'm thinking of MAYBE completely letting go of birds? I think this could be a good point to maybe take a step back and see if the framework i designed would be more interesting with other source materials. I had this idea because sometimes the object detection thinks for some reason that a pile of rocks is at least 20% a bird (the filter i programmed), and so you can click on the rocks and it becomes funny to see how innanimate rocks also have a vibe. But I think this is only funny when its supposed to be birds but then a rock happens for some reason? Again, bugs are funny apparently. I think having it completely random is maybe too much, having a sort of category is nice, but maybe birds is too precise and limits the comedic potential in a way. It also is too rigid as a set of rules and makes the errors of mediapipe funny sometimes but not all the time? Theres really something interesting about the point of rigidity of rules to encourage bugs so that its *always* funny even when it doesn't work? I mean I feel like its working here with birds but I'm just wondering if it could be a bit larger in concept. Say animals for example. This could give me more video material to work with and would make it more interesting in terms of diversity of reactions. Like when you check the vibe of a small bird and then it switches to the swan for example, its funny cause they really all are different visually and carry their own stereotypical essence that is interesting to subvert with sound. Like its funny when you click on the small bird and its a fast techno sound and then its a swan (regal, pure, big, beautiful) and the sound is emo scream music. If the birds are too similar the contrast sound and appearance of the bird gets too common quick, like there needs to be a vast amount of type of sounds and a vast amount of appearances so that it stays interesting. if its only one or the other then it becomes predictable even if funny for a couple of times. The goal is not to make it eternally funny but its nice if it is a bit more than a one liner and more exploratory. So yeah, test with other types of footage. Look for online streaming libraries? 
+- Also, to continue on that. I was reading about the term VIBE CHECK, and I think it's really comedic and actually what I'm doing. Definition from Later.com : "Vibe check" is a phrase used on social media to inquire about or assess the general atmosphere or mood of a person, group, or situation. It's a lighthearted way of checking in on someone's emotional state or evaluating the overall energy or "vibes" in a particular context. So yeah I think I might want to create a tool to check the vibe?? Its more fun than "internal dialogue" i feel like. Vibe check machine... Yeah its more interesting. definition continued: The concept of "vibe check" often carries an undertone of wanting to ensure that everyone is feeling good or that the atmosphere is positive and harmonious. It's a way to foster connection, express concern, or simply engage in a playful and casual manner within online interactions [Later.com](https://later.com/social-media-glossary/vibe-check/#:~:text=%22Vibe%20check%22%20is%20a%20phrase,vibes%22%20in%20a%20particular%20context.). Theres also this thing were you can pass or fail a vibe check which could be interesting to incorporate as an extra layer of comedy and gamification. [cambridge dictionnary](https://dictionary.cambridge.org/dictionary/english/vibe-check): People dating on the internet are increasingly turning to a pre-date vibe check. Could be hilarious to use actual real people? Like video footage from shutterstock or something. vibe check machine... hmmmmmmm.. HM. Would be really different though. fuck should i make this? Dunno. Should ask pippin. 
+My suggestion is that you don’t start by saying, “How are you?” to your friends; go, instead, with “Vibe check?”
+[vibes from guardian](https://www.theguardian.com/lifeandstyle/2023/mar/22/vibes-definition-slang-language-meaning)
+Also : Failing a Vibe Check usually means that someone is seen as having a negative or off-putting energy or mood. However, the consequences or implications of failing a Vibe Check can vary. It might lead to jokingly being excluded from a group activity or serve as a lighthearted way to draw attention to someone’s actions or behavior. Vibe is off????? What does Vibe Is Off mean?
+Vibe is off is a slang phrase used to convey a negative feeling or suspicion regarding someone, something, or a situation. It means that the atmosphere, energy, or mood around a person, place, or situation feels uncomfortable, strange, or not fitting. [source](https://keyhole.co/social-media-glossary/vibe-check/) also: [vibe check meme origin] (https://happymag.tv/vibe-check-meme-explained/)
+
+Last little things I wanna fix :
+- General design of the page - Instructions not really clear, make them more part of the work, like pointer pointer (instructions are written and change depending on the action)
+- Trash p5 and only work with vanilla js - Reeallllly slows everything down
+- Sounds.... Test more options, test what is funny what isnt, make a strong and vast selection. Make sounds not heavy. 
+
+## May 2nd 2024 - NOON
+
+I think this project needs a last phase to make it ready for release and a strong case for my thesis. I want this all done before I leave for Island. Here is a very general to do list for that to happen:
+
+
+- Test different kinds of videos 
+- Brainstorm different avenues for more complex interface
+- Find out a way to store videos elsewhere? Figure out what to do with video stuff.
+- Make sound humour test - reflect and choose a specific niche maybe. Download and refine sound library
+- Get rid of P5: have the same thing but working with vanilla js only. Way too slow right now.
+- Find a way to put online
+- Publish it
