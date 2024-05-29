@@ -1,6 +1,6 @@
 // main window resize
 
-// window size beginning 
+// window size beginning
 let winheight = 100;
 let winsize = 100;
 let win2;
@@ -11,29 +11,30 @@ let temploc;
 let openAviaryButton;
 
 window.onload = (event) => {
-  console.log('page loaded')
+  console.log("page loaded");
 
-  openAviaryButton = document.getElementById('openAviaryButton');
+  openAviaryButton = document.getElementById("openAviaryButton");
 
-  openAviaryButton.addEventListener('click', () => {
-    console.log('Aviary Opened!');
-    openAviary()
-  })
+  openAviaryButton.addEventListener("click", () => {
+    console.log("Aviary Opened!");
+    openAviary();
+  });
   // runP5();
-}
+};
 
 function openAviary() {
-  if (!(window.resizeTo && document.all) && !(window.resizeTo && document.getElementById)) {
+  if (
+    !(window.resizeTo && document.all) &&
+    !(window.resizeTo && document.getElementById)
+  ) {
     window.open();
     return;
   }
   win2 = window.open("aviary.html", "", "scrollbars");
   win2.moveTo(0, 0);
   win2.resizeTo(100, 100);
-  // go2();
+  go2();
 }
-
-
 
 function go2() {
   if (winheight >= screen.availHeight - 3) {
