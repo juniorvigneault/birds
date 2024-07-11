@@ -1,62 +1,71 @@
 <html>
+  <head>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"
+      crossorigin="anonymous"
+      type="module"
+    ></script>
 
-<head>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" crossorigin="anonymous"
-    type="module"></script>
+    <link href="test.css" rel="stylesheet" />
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
 
-  <link href="test.css" rel="stylesheet">
-  <script src="libraries/p5.min.js"></script>
-  <script src="libraries/p5.sound.min.js"></script>
+    <script src="test_withVideo.js" type="module"></script>
+  </head>
 
-  <script src="test_withVideo.js" type="module"></script>
-</head>
-
-
-<body>
-  <header>
-    <div id="aboutButton">
-      About ↓
-    </div>
-    <div id="aboutText">
-      <span id="italic">Inner Birdsong</span> is a research-creation project exploring the intersection of ML
-      algorithms and
-      anthropomorphism through the prism of humor theory. Utilizing MediaPipe's object detection tool on a continuous
-      video feed, <span id="italic">Inner
-        Birdsong</span>
-      provides users with an intimate interactive window into the internal monologue of birds. <br>
-      This project is part of
-      my Master of Design thesis exploring the comedic
-      potential of JavaScript frameworks.
-      <br>
-      <br>
-      <div id="instructions">
-        Instructions <br>
-        → To listen to an internal birdsong, hover over the detected bird in the video feed, <span
-          id="blue">click</span> and
-        <span id="blue">hold</span>.
+  <body>
+    <header>
+      <div id="aboutButton">About ↓</div>
+      <div id="aboutText">
+        <span id="italic">Inner Birdsong</span> is a research-creation project
+        exploring the intersection of ML algorithms and anthropomorphism through
+        the prism of humor theory. Utilizing MediaPipe's object detection tool
+        on a continuous video feed,
+        <span id="italic">Inner Birdsong</span> provides users with an intimate
+        interactive window into the internal monologue of birds. <br />
+        This project is part of my Master of Design thesis exploring the comedic
+        potential of JavaScript frameworks.
+        <br />
+        <br />
+        <div id="instructions">
+          Instructions <br />
+          → To listen to an internal birdsong, hover over the detected bird in
+          the video feed, <span id="blue">click</span> and
+          <span id="blue">hold</span>.
+        </div>
       </div>
-    </div>
-  </header>
-  <main>
-    <div id="container">
-    </div>
-  </main>
-  <footer>
-    <div>
+    </header>
+    <main>
+      <div id="container"></div>
+    </main>
+    <footer>
       <div>
-        <span id="title">Inner Birdsong <span id="birdSymbol">𓅪</span></span>
+        <div>
+          <span id="title">Inner Birdsong <span id="birdSymbol">𓅪</span></span>
+        </div>
+        <span
+          >Created by
+          <a href="https://www.juniorvigneault.com">Junior Vigneault</a></span
+        >
+        <br />
+        <span
+          >Bird Footage by
+          <a href="https://www.youtube.com/channel/UCPJXfmxMYAoH02CFudZxmgg"
+            >Paul Dinning</a
+          ></span
+        >
+        <br />
+        <span
+          >→
+          <a href="https://github.com/juniorvigneault/mdes"
+            >Github Repository</a
+          ></span
+        >
       </div>
-      <span>Created by <a href="https://www.juniorvigneault.com">Junior Vigneault</a></span>
-      <br>
-      <span>Bird Footage by <a href="https://www.youtube.com/channel/UCPJXfmxMYAoH02CFudZxmgg">Paul Dinning</a></span>
-      <br>
-      <span>→ <a href="https://github.com/juniorvigneault/mdes">Github Repository</a></span>
+    </footer>
+    <div id="detectionsTitle">
+      <span>Live Detections </span>
+      <div class="blinking-circle"></div>
     </div>
-  </footer>
-  <div id="detectionsTitle">
-    <span>Live Detections </span>
-    <div class="blinking-circle"></div>
-  </div>
-</body>
-
+  </body>
 </html>

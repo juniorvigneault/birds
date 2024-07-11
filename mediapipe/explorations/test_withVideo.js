@@ -35,7 +35,7 @@ let birdFootage = {
   path: undefined,
   isRunning: false,
   width: 640,
-  height: 480,
+  height: 360,
 };
 
 let earCursor;
@@ -72,7 +72,9 @@ let sketch = new p5(function (p5) {
 
     // create video footage
     let randomVideoItem = Math.floor(p5.random(0, 13));
-    birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
+    // birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
+    birdFootage.path = `assets/videos/2.mp4`;
+
     birdFootage.videoFeed = p5.createVideo(birdFootage.path);
     // birdFootage.videoFeed.hide();
     // birdFootage.videoFeed.size(birdFootage.width, birdFootage.height);
@@ -198,7 +200,7 @@ let sketch = new p5(function (p5) {
         currentSound.stop();
       }
 
-      changeVideo();
+      // changeVideo();
     }
   };
 
