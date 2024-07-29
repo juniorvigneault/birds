@@ -1,19 +1,38 @@
 <html>
+  <head>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"
+      crossorigin="anonymous"
+      type="module"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
+    <link href="test.css" rel="stylesheet" />
 
-<head>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" crossorigin="anonymous"
-    type="module"></script>
+    <script src="libraries/hsluv-0.1.0.min.js"></script>
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
 
-  <link href="test.css" rel="stylesheet">
-  <script src="libraries/p5.min.js"></script>
-  <script src="libraries/p5.sound.min.js"></script>
+    <script src="test_withVideo.js" type="module"></script>
+  </head>
 
-  <script src="test_withVideo.js" type="module"></script>
-</head>
-
-
-<body>
-  <img src="" alt="" id="birdImage">
-</body>
-
+  <body>
+    <svg>
+      <defs>
+        <filter id="gooey" height="130%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 60 -10"
+            result="goo"
+          />
+          <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+      </defs>
+    </svg>
+    <div id="canvases">
+      <section id="hands-canvas"></section>
+      <section id="stream-canvas"></section>
+    </div>
+  </body>
 </html>
