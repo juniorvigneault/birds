@@ -1,0 +1,273 @@
+@font-face {
+  font-family: "habitus Regular";
+  src: url("assets/fonts/Habitus-Regular.otf");
+}
+
+@font-face {
+  font-family: "habitus Bold";
+  src: url("assets/fonts/Habitus-Bold.otf");
+}
+
+@font-face {
+  font-family: "habitus Italic";
+  src: url("assets/fonts/Habitus-BookItalic.otf");
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: "Habitus Regular";
+}
+
+#birdCounter {
+  font-family: "Habitus Regular";
+  position: absolute;
+  top: 135px;
+  right: 270px;
+}
+
+#instructionsGif {
+  width: 400px;
+}
+
+.ui-dialog-titlebar {
+  display: none;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.blinking-circle {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  margin-top: 7px;
+  margin-left: 5px;
+  animation: blink 1s infinite alternate;
+}
+
+#detectionsTitle {
+  display: flex;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+h1 {
+  margin: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+#small {
+  font-size: 12;
+}
+video {
+  position: absolute;
+  visibility: hidden;
+  top: 0;
+  left: 0;
+  width: 640px;
+  height: 480px;
+  z-index: -1; /* Ensure it stays behind the canvas */
+  object-fit: cover; /* Make sure the video scales correctly */
+  clip-path: inset(13% 0% 13% 0%);
+}
+header {
+  position: absolute;
+  font-family: "Habitus Regular";
+  width: 300px;
+  margin: 10px;
+}
+
+#detectionsTitle {
+  position: absolute;
+  bottom: 0;
+  right: 3px;
+  margin: 10px;
+  font-family: "Habitus Regular";
+  text-align: left;
+}
+
+#blue {
+  color: blue;
+}
+
+#container {
+  position: relative;
+  width: 640px; /* Set the desired width for your canvas/video */
+  height: 900px; /* Set the desired height for your canvas/video */
+  margin: auto;
+  z-index: -99;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+#instructions {
+  border-style: dotted;
+  padding: 10px;
+}
+
+footer {
+  position: absolute;
+  font-family: "Habitus Regular";
+  margin: 10px;
+  bottom: 0;
+}
+
+#title {
+  font-size: 32px;
+}
+
+#italic {
+  font-family: "Habitus Italic";
+}
+
+#aboutText {
+  display: none;
+  /* background-color: aliceblue; */
+  z-index: 99;
+}
+
+#aboutButton:hover {
+  cursor: pointer;
+}
+
+/* Basic styling for the dialog box */
+#startModal {
+  display: flex; /* Use flex for layout */
+  flex-direction: column; /* Arrange children in a column */
+  align-items: left; /* Center children horizontally */
+  justify-content: center; /* Center children vertically */
+  position: fixed; /* Position fixed to the viewport */
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Offset by half of its own size */
+  background-color: white; /* Background color */
+  padding: 10px 20px; /* Padding inside the modal */
+  padding-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow for a better look */
+  z-index: 1000; /* Ensure it’s above other elements */
+  width: 50%; /* Adjust width as needed */
+  height: fit-content;
+  max-width: 500px; /* Max width */
+  border-radius: 8px; /* Rounded corners */
+}
+/* Center content within the dialog */
+
+/* Image styling */
+
+#content {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.4s ease-in; /* Transition for fade-in effect */
+}
+#startmodal button {
+  /* margin-top: 20px; */
+  /* padding: 3px 7px; */
+  font-family: "Habitus Regular";
+}
+#loadingGif {
+  max-width: 2%;
+  min-width: 20px;
+  position: absolute;
+  z-index: 1;
+  top: auto;
+  left: auto;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#loadingMessage {
+  position: absolute;
+  z-index: 1;
+  font-size: 12px;
+  color: lightgray;
+  top: auto;
+  left: auto;
+  padding-top: 70px;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#instructionsText {
+  font-family: "Habitus-Regular";
+}
+/* Container for aligning instructions and button */
+
+#numbers {
+  color: black;
+  font-family: "Habitus Regular";
+}
+/* Style for the instructions text */
+#instructionsText {
+  margin-top: 20px;
+  font-family: "Habitus Regular";
+  text-align: left; /* Align text to the left */
+  color: rgb(0, 200, 0);
+}
+#arrow {
+  color: black;
+}
+
+/* Style for the image */
+
+/* Image styling */
+.dialog-image {
+  width: 100%; /* Image takes up full width of the container */
+  max-width: 100%; /* Ensure image does not overflow the container */
+  height: auto; /* Maintain aspect ratio */
+  margin: 10px 0; /* Add vertical margin for spacing */
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+#sound {
+  color: blue;
+}
+#title-modal {
+  font-family: "Habitus Regular";
+  /* background-color: rgb(224, 224, 224); */
+}
+
+#startButton {
+  font-family: "Habitus Regular";
+  font-size: 18;
+  margin-top: 5px;
+  padding: 2px 10px;
+  /* position: absolute; */
+  /* right: 16;
+  
+  margin-top: 5px; */
+  float: right;
+}
