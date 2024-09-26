@@ -526,7 +526,7 @@ function startSketch() {
         circleMaskSize
       );
 
-      moodBox(p5.width / 2 + 250, p5.height / 2 + circleMaskSize / 2 + 100);
+      // moodBox(p5.width / 2 + 250, p5.height / 2 + circleMaskSize / 2 + 100);
     }
     function moodBox(x, y) {
       // Fetch and display the mood only once
