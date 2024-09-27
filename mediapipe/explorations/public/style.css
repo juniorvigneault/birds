@@ -111,7 +111,7 @@ header {
 #container {
   position: relative;
   width: 640px; /* Set the desired width for your canvas/video */
-  height: 900px; /* Set the desired height for your canvas/video */
+  height: 480px; /* Set the desired height for your canvas/video */
   margin: auto;
   z-index: -99;
 }

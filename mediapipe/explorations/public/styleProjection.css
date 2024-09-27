@@ -1,0 +1,9 @@
+html,
+body {
+  height: 100%; /* Ensures the body takes full height */
+  margin: 0; /* Resets default margin */
+  display: flex; /* Enables flexbox on the body */
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  background-color: black;
+}

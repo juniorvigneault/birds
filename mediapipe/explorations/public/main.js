@@ -10,6 +10,7 @@ let objectDetector;
 let runningMode = "VIDEO";
 let habitusFont;
 let loadingGif;
+let socket;
 let frameCounter = 0;
 let detectionPerFrames = 4;
 // store the results of the model
@@ -69,28 +70,16 @@ let vanillaCanvas;
 let vanillaSamples = [];
 
 window.onload = function () {
-  document.getElementById("startButton").addEventListener("click", function () {
-    // Your function to run when the button is clicked
-    let content = document.querySelector("#content");
-    let startDialogBox = document.querySelector("#startModal");
-    startDialogBox.style.display = "none";
-    content.style.display = "block";
-    setTimeout(function () {
-      content.style.opacity = 1;
-      startSketch();
-    }, 50);
-  });
-
-  // vanillaCanvas = document.createElement("canvas");
-  // vanillaCanvas.width = birdFootage.width;
-  // vanillaCanvas.height = birdFootage.height * 2;
-  // document.getElementById("canvasContainer").appendChild(vanillaCanvas);
-  // ctx = vanillaCanvas.getContext("2d");
-
-  // for (let i = 1; i <= numSamples; i++) {
-  //   let sample = new Audio(`assets/sounds/birdSounds/${i}.mp3`);
-  //   vanillaSamples.push(sample);
-  // }
+  // document.getElementById("startButton").addEventListener("click", function () {
+  //   // Your function to run when the button is clicked
+  let content = document.querySelector("#content");
+  //   let startDialogBox = document.querySelector("#startModal");
+  // startDialogBox.style.display = "none";
+  content.style.display = "block";
+  setTimeout(function () {
+    content.style.opacity = 1;
+    startSketch();
+  }, 50);
 };
 
 function startSketch() {
@@ -106,7 +95,7 @@ function startSketch() {
     p5.setup = async function () {
       // create a video element from the video footage for the canvas
       // let container = document.querySelector('#container');
-      canvas = p5.createCanvas(birdFootage.width, 900);
+      canvas = p5.createCanvas(birdFootage.width, birdFootage.height);
 
       canvas.parent("container");
       loadingGif = document.querySelector("#loadingGif");
@@ -142,29 +131,8 @@ function startSketch() {
       birdFootage.videoFeed.loop();
       birdFootage.videoFeed.volume = 0;
 
-      about();
-      // birdCounter = document.getElementById('birdCount');
-
-      // vanilla js
-      // setup();
+      socket = io();
     };
-
-    // function setup() {
-    //   birdVideo = document.createElement("video");
-    //   birdVideo.src = `assets/videos/${randomVideoItem}.mp4`;
-    //   document.getElementById("canvasContainer").appendChild(birdVideo);
-    //   requestAnimationFrame(draw);
-    // }
-
-    // function draw() {
-    //   // Clear the canvas
-    //   ctx.clearRect(0, 0, vanillaCanvas.width, vanillaCanvas.height);
-    //   // Your drawing code here (like drawing video frames)
-    //   ctx.drawImage(birdVideo, 0, 0, birdFootage.width, birdFootage.height);
-    //   requestAnimationFrame(draw);
-    // }
-
-    // Function to fetch the JSON file and get a random mood
 
     async function initializeObjectDetector() {
       const vision = await FilesetResolver.forVisionTasks(
@@ -226,8 +194,6 @@ function startSketch() {
 
     function spotlight(box) {
       p5.push();
-      // p5.imageMode(p5.CENTER);
-      // p5.rectMode(p5.CORNER);
 
       // Create a graphics buffer for the dark overlay
       let overlay = p5.createGraphics(p5.width, birdFootage.height - 60);
@@ -273,38 +239,9 @@ function startSketch() {
           }
         }
       }
-      // console.log(randomVideoItem);
+      // send to other page
+      socket.emit("mouseState", { isClicked: true });
     };
-
-    function about() {
-      const aboutButton = document.getElementById("aboutButton");
-      const aboutText = document.getElementById("aboutText");
-      const footer = document.querySelector("footer");
-      let timer;
-      isVisible = false;
-
-      function toggleAbout() {
-        if (!isVisible) {
-          aboutText.style.display = "block";
-          isVisible = true;
-          footer.style.display = "none";
-          timer = setTimeout(() => {
-            aboutText.style.display = "none";
-            footer.style.display = "block";
-
-            isVisible = false;
-          }, 29000);
-        } else {
-          clearTimeout(timer);
-          aboutText.style.display = "none";
-          footer.style.display = "block";
-
-          isVisible = false;
-        }
-      }
-
-      aboutButton.addEventListener("click", toggleAbout);
-    }
 
     p5.mouseReleased = function () {
       currentMood = "";
@@ -320,6 +257,7 @@ function startSketch() {
 
         changeVideo();
       }
+      socket.emit("mouseState", { isClicked: false });
     };
 
     function playSample() {
@@ -337,25 +275,8 @@ function startSketch() {
     }
 
     p5.draw = function () {
-      // p5.frameRate(25);
-      // p5.background(0);
       p5.clear(canvas);
-      // p5.background(255);
 
-      // copy the video stream to the canvas and position it under it
-      // p5.push();
-      // p5.imageMode(p5.CENTER);
-      // p5.image(
-      //   birdFootage.videoFeed,
-      //   p5.width / 2,
-      //   birdFootage.height / 2,
-      //   birdFootage.width,
-      //   birdFootage.height
-      // );
-      // p5.pop();
-      // p5.fill(255);
-      // p5.noStroke();
-      // p5.rect(0, 400, p5.width, 200);
       // if the the model is initialized, run detection on video and draw rectangles around birds
       if (objectDetector && isDetecting) {
         // put the detections of the video in results
@@ -425,33 +346,28 @@ function startSketch() {
       displayBirdCam(birdImage, box);
     }
 
-    // me version
-    // function getLastPosition() {
-    //   console.log(birdFootage.videoElement.playbackRate)
-    //   // Iterate through all detections
-    //   for (let i = 0; i < birdsDetected.length; i++) {
-    //     let box = birdsDetected[i].boundingBox;
+    // SABINE VERSION
+    function displayBirdCam(bird, box) {
+      spotlight(box);
+      // lines(box);
 
-    //     // Check if the mouse is inside the bounding box of the current bird
-    //     isMouseInside = p5.mouseX > box.originX && p5.mouseX < box.originX + box.width &&
-    //       p5.mouseY > box.originY && p5.mouseY < box.originY + box.height;
+      // Draw the bird and mask
+      circleMask.fill(0, 0, 0, 255);
+      circleMask.circle(circleMaskSize / 2, circleMaskSize / 2, circleMaskSize);
+      // lines(box, bird);
+      bird.mask(circleMask);
+      p5.imageMode(p5.CENTER);
+      // p5.image(
+      //   bird,
+      //   p5.width / 2,
+      //   p5.height / 2 + circleMaskSize / 2 - 20,
+      //   circleMaskSize,
+      //   circleMaskSize
+      // );
 
-    //     // Store the current position as the previous position for next iteration
-    //     birdPreviousPosition[i] = {
-    //       x: box.originX + box.width / 2,
-    //       y: box.originY + box.height / 2
-    //     };
-
-    //     // If mouse is inside the bounding box, and it's the same bird as the last time, create bird image
-    //     if (isMouseInside && p5.dist(birdPreviousPosition[i].x, birdPreviousPosition[i].y, p5.mouseX, p5.mouseY) < threshold) {
-    //       createBirdImage(box);
-    //       birdFootage.videoElement.playbackRate = 0.1;
-    //     } else {
-    //       birdFootage.videoElement.playbackRate = 1;
-
-    //     }
-    //   }
-    // }
+      let birdCanvas = bird.canvas.toDataURL(); // Assuming 'bird' is a p5.Image
+      socket.emit("birdImage", { image: birdCanvas }); // Send image over socket
+    }
 
     // SABINE VERSION
     function getLastPosition() {
@@ -484,79 +400,6 @@ function startSketch() {
       }
     }
 
-    // ME VERSION
-    // function displayBirdCam(bird, box) {
-    //   // Draw the bird and mask
-    //   circleMask.fill(0, 0, 0, 255);
-    //   circleMask.circle(circleMaskSize / 2, circleMaskSize / 2, circleMaskSize);
-    //   lines(box, bird);
-    //   bird.mask(circleMask);
-    //   p5.imageMode(p5.CENTER);
-    //   p5.image(bird, p5.width / 2, p5.height / 2 + circleMaskSize / 2, circleMaskSize, circleMaskSize);
-    // }
-
-    async function getRandomMood() {
-      try {
-        const response = await fetch("moods.json"); // Replace 'moods.json' with the path to your JSON file
-        const data = await response.json(); // Parse the JSON data
-        const moods = data.moods; // Access the moods array
-        const randomIndex = Math.floor(Math.random() * moods.length); // Generate a random index
-        return moods[randomIndex]; // Return a random mood
-      } catch (error) {
-        console.error("Error fetching the JSON file:", error);
-      }
-    }
-
-    // SABINE VERSION
-    function displayBirdCam(bird, box) {
-      spotlight(box);
-      lines(box);
-
-      // Draw the bird and mask
-      circleMask.fill(0, 0, 0, 255);
-      circleMask.circle(circleMaskSize / 2, circleMaskSize / 2, circleMaskSize);
-      // lines(box, bird);
-      bird.mask(circleMask);
-      p5.imageMode(p5.CENTER);
-      p5.image(
-        bird,
-        p5.width / 2,
-        p5.height / 2 + circleMaskSize / 2 - 20,
-        circleMaskSize,
-        circleMaskSize
-      );
-
-      // moodBox(p5.width / 2 + 250, p5.height / 2 + circleMaskSize / 2 + 100);
-    }
-    function moodBox(x, y) {
-      // Fetch and display the mood only once
-      if (!moodFetched) {
-        currentMood = "";
-        getRandomMood().then((mood) => {
-          currentMood = mood; // Store the fetched mood
-          console.log(currentMood); // Log the mood or display it in your sketch
-          moodFetched = true; // Set the flag so it won't fetch again
-        });
-      }
-
-      p5.push();
-      // p5.rectMode(p5.CENTER);
-      // p5.fill(255);
-      // p5.rect(x, y, 120, 50);
-      p5.noStroke();
-
-      p5.textAlign(p5.LEFT);
-
-      p5.textSize(12);
-      p5.fill(0);
-      p5.text("Current Mood ↓", x - 25, y - 7);
-
-      p5.textSize(17);
-      p5.fill(0);
-      p5.text(currentMood, x - 25, y + 12);
-      p5.pop();
-    }
-
     function lines(box) {
       p5.push();
 
@@ -576,44 +419,7 @@ function startSketch() {
         box.originX + box.width / 2,
         box.originY + box.height / 2
       );
-
-      // p5.stroke(237, 3, 3);
-      // p5.strokeWeight(10)
-      // p5.fill(0, 0, 0, 0);
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2, circleMaskSize + 10, circleMaskSize + 10);
-
-      // p5.stroke(0, 255, 0);
-      // p5.strokeWeight(2)
-      // p5.fill(0, 0, 0, 0);
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2, circleMaskSize, circleMaskSize)
-
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2.85, circleMaskSize, circleMaskSize)
       p5.pop();
-    }
-
-    function displayScore() {
-      for (let i = 0; i < birdsDetected.length; i++) {
-        p5.push();
-        let box = birdsDetected[i].boundingBox;
-
-        // if (boxBlue) {
-        //   p5.fill(0, 0, 255, 100)
-        // } else if (!boxBlue) {
-        //   p5.fill(0, 200, 0, 100)
-        // }
-        // p5.stroke(230, 0, 0)
-        // p5.rect(box.originX, box.originY, box.width, box.height)
-        // p5.fill(0)
-        // p5.textFont(habitusFont)
-        p5.text(
-          Math.floor(birdsDetected[i].categories[0].score * 100) % 100,
-          box.originX,
-          box.originY
-        );
-        // p5.fill(0);
-        // p5.ellipse(box.originX - 10, box.originY + 5, 5, 5)
-        p5.pop();
-      }
     }
   }); // end of p5 sketch
 }
