@@ -12,102 +12,20 @@
     <link href="style.css" rel="stylesheet" />
     <script src="libraries/p5.min.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
-    <script src="test_withVideo.js" type="module"></script>
+
+    <script src="main.js" type="module"></script>
   </head>
   <body>
     <div id="content">
-      <header>
-        <div id="aboutButton">About ↓</div>
-        <div id="aboutText">
-          <span id="italic">Inner Birdsong</span>𓅪 enables users to access the
-          mental state of birds. Using the browser as a space for interactive
-          birdwatching, the work explores the spontaneity of the natural world
-          through a subversive use of machine learning algorithms. Using humor
-          as a critical lens to explore notions of bias and surveillance, the
-          work aims to mirror the way we scrutinize ourselves and others in our
-          hyperconnected world. <br />
-          <br />By challenging our understanding of perception through play, the
-          project encourages visitors to uncover and interpret the subtleties of
-          our surroundings, prompting a critical reflection on the act of
-          projection—and how we impose our own mental states onto others, often
-          misinterpreting true experiences.
-          <br />
-          <br />
-          <div id="instructions">
-            Instructions <br />
-            <span id="instructionsText">
-              <span id="numbers">1.</span>
-              <span id="sound">&nbsp;&nbsp;Activate sound ၊၊||၊₊</span>
-            </span>
-            <span id="instructionsText">
-              <br />
-              <span id="numbers">2.</span>&nbsp;&nbsp;Hover 𓅪&nbsp;&nbsp;<span
-                id="arrow"
-                >-></span
-              >&nbsp;&nbsp; click + hold
-            </span>
-          </div>
-          <br />
-          <span id="small">
-            Video Footage licensed under
-            <a href="https://elements.envato.com/">Envato Elements</a>. Audio
-            Licensed under <a href="https://splice.com/">Splice</a>.
-          </span>
-        </div>
-      </header>
       <main>
         <img src="assets/images/loading.gif" alt="" id="loadingGif" />
         <div id="loadingMessage">This may take a moment</div>
         <div id="container"></div>
       </main>
-      <footer>
-        <div>
-          <div>
-            <span id="title"
-              >Inner Birdsong <span id="birdSymbol">𓅪</span></span
-            >
-          </div>
-          <span
-            >Created by
-            <a href="https://www.juniorvigneault.com">Junior Vigneault</a></span
-          >
-          <br />
-          <span
-            >→
-            <a href="https://github.com/juniorvigneault/mdes"
-              >Github Repository</a
-            ></span
-          >
-        </div>
-      </footer>
+
       <div id="detectionsTitle">
         <span>Live Detections </span>
         <div class="blinking-circle"></div>
-      </div>
-    </div>
-    <div id="startModal">
-      <div id="title-modal">
-        <span id="title">Inner Birdsong 𓅪</span>
-        <br />
-        <span id="title-name">by Junior Vigneault</span>
-        <hr />
-      </div>
-      <div class="content-container">
-        <span id="instructionsText">
-          <span id="numbers">1.</span>
-          <span id="sound">&nbsp;&nbsp;Activate sound ၊၊||၊₊</span>
-        </span>
-        <br />
-        <span id="instructionsText">
-          <span id="numbers">2.</span>&nbsp;&nbsp;Hover 𓅪&nbsp;&nbsp;<span
-            id="arrow"
-            >-></span
-          >&nbsp;&nbsp; click + hold
-        </span>
-        <img src="assets/images/instructions.gif" class="dialog-image" />
-        <div class="dialog-button">
-          <button id="startButton">start</button>
-        </div>
       </div>
     </div>
   </body>

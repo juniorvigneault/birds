@@ -12,6 +12,8 @@ let habitusFont;
 let loadingGif;
 let frameCounter = 0;
 let detectionPerFrames = 4;
+let mouseIsMoving = false;
+let mouseMoveTimeout;
 // store the results of the model
 let randomVideoItem;
 let results;
@@ -21,6 +23,8 @@ let birdImageCreated = false;
 let boxBlue = true;
 let moodFetched = false;
 let currentMood = "";
+let detectionFlag = true; // This will track whether detection has already run
+
 // let cutOutBirdImage;
 let maskImage;
 let birdIsSegmented = false;
@@ -41,10 +45,13 @@ let birdFootage = {
   videoElement: undefined,
   path: undefined,
   isRunning: false,
-  width: 640,
-  height: 480,
+  width: 1280,
+  height: 720,
 };
-
+let showingBirdCam = false;
+let overlay;
+let isMouseHover = false;
+let capturedFrame;
 let earCursor;
 let birdIndex = 0;
 let tagged = false;
@@ -69,29 +76,28 @@ let vanillaCanvas;
 let vanillaSamples = [];
 
 window.onload = function () {
-  document.getElementById("startButton").addEventListener("click", function () {
-    // Your function to run when the button is clicked
-    let content = document.querySelector("#content");
-    let startDialogBox = document.querySelector("#startModal");
-    startDialogBox.style.display = "none";
-    content.style.display = "block";
-    setTimeout(function () {
-      content.style.opacity = 1;
-      startSketch();
-    }, 50);
-  });
-
-  // vanillaCanvas = document.createElement("canvas");
-  // vanillaCanvas.width = birdFootage.width;
-  // vanillaCanvas.height = birdFootage.height * 2;
-  // document.getElementById("canvasContainer").appendChild(vanillaCanvas);
-  // ctx = vanillaCanvas.getContext("2d");
-
-  // for (let i = 1; i <= numSamples; i++) {
-  //   let sample = new Audio(`assets/sounds/birdSounds/${i}.mp3`);
-  //   vanillaSamples.push(sample);
-  // }
+  // document.getElementById("startButton").addEventListener("click", function () {
+  // Your function to run when the button is clicked
+  let content = document.querySelector("#content");
+  // let startDialogBox = document.querySelector("#startModal");
+  // startDialogBox.style.display = "none";
+  content.style.display = "block";
+  setTimeout(function () {
+    content.style.opacity = 1;
+    startSketch();
+  }, 50);
 };
+
+// vanillaCanvas = document.createElement("canvas");
+// vanillaCanvas.width = birdFootage.width;
+// vanillaCanvas.height = birdFootage.height * 2;
+// document.getElementById("canvasContainer").appendChild(vanillaCanvas);
+// ctx = vanillaCanvas.getContext("2d");
+
+// for (let i = 1; i <= numSamples; i++) {
+//   let sample = new Audio(`assets/sounds/birdSounds/${i}.mp3`);
+//   vanillaSamples.push(sample);
+// }
 
 function startSketch() {
   let sketch = new p5(function (p5) {
@@ -106,19 +112,21 @@ function startSketch() {
     p5.setup = async function () {
       // create a video element from the video footage for the canvas
       // let container = document.querySelector('#container');
-      canvas = p5.createCanvas(birdFootage.width, 900);
+      canvas = p5.createCanvas(birdFootage.width, birdFootage.height);
 
       canvas.parent("container");
       loadingGif = document.querySelector("#loadingGif");
       let loadingMessage = document.querySelector("#loadingMessage");
 
       // create video footage
-      randomVideoItem = Math.floor(p5.random(0, numVideos));
-      currentVideoIndex = randomVideoItem;
-      birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
+      // randomVideoItem = Math.floor(p5.random(0, numVideos));
+      // currentVideoIndex = randomVideoItem;
+      birdFootage.path = `assets/videos/00.mp4`;
       // birdFootage.path = `assets/videos/0.mp4`;
 
       birdFootage.videoFeed = p5.createVideo(birdFootage.path);
+      overlay = p5.createGraphics(birdFootage.width, birdFootage.height);
+
       // birdFootage.videoFeed.position(0, 0);
       // birdFootage.videoFeed.hide();
 
@@ -140,15 +148,83 @@ function startSketch() {
       birdFootage.videoFeed.parent("container");
       // birdFootage.videoFeed.play();
       birdFootage.videoFeed.loop();
-      birdFootage.videoFeed.volume = 0;
+      // birdFootage.videoFeed.volume = 0;
 
-      about();
+      // about();
       // birdCounter = document.getElementById('birdCount');
 
       // vanilla js
       // setup();
+      // container with video and canvas
+      let container = document.querySelector("#container");
+      // check if mouse is on or outside the canvas
+      container.addEventListener(
+        "mouseleave",
+        function (event) {
+          isMouseHover = false;
+          stopDetection(); // Stop detection
+          birdFootage.videoFeed.loop();
+          detectionFlag = true;
+        },
+        false
+      );
+      container.addEventListener(
+        "mouseover",
+        function (event) {
+          isMouseHover = true;
+          captureFrameAndDetect(); // Run detection on the paused frame
+          birdFootage.videoFeed.pause();
+        },
+        false
+      );
+
+      container.addEventListener("mousemove", () => {
+        mouseIsMoving = true;
+
+        // Clear any existing timeout to prevent premature reset
+        clearTimeout(mouseMoveTimeout);
+
+        // Set a timeout to turn off the flag after a delay (e.g., 500ms)
+        mouseMoveTimeout = setTimeout(() => {
+          mouseIsMoving = false;
+          // console.log("Mouse stopped moving");
+        }, 500);
+      });
     };
 
+    function captureFrameAndDetect() {
+      // console.log("captureFrame");
+      capturedFrame = birdFootage.videoFeed;
+      // console.log(capturedFrame);
+      // console.log(currentVideoFrame);
+      // console.log(birdFootage.videoElement);
+
+      // capturedFrame = p5.createGraphics(birdFootage.width, birdFootage.height);
+      // capturedFrame.image(
+      //   currentVideoFrame,
+      //   0,
+      //   0,
+      //   birdFootage.width,
+      //   birdFootage.height
+      // );
+
+      // p5.image(capturedFrame);
+      // capturedFrame.copy(
+      //   currentVideoFrame,
+      //   0,
+      //   0,
+      //   birdFootage.width,
+      //   birdFootage.height,
+      //   0,
+      //   0,
+      //   birdFootage.width,
+      //   birdFootage.height
+      // );
+    }
+
+    function stopDetection() {
+      console.log("stop detection");
+    }
     // function setup() {
     //   birdVideo = document.createElement("video");
     //   birdVideo.src = `assets/videos/${randomVideoItem}.mp4`;
@@ -201,7 +277,7 @@ function startSketch() {
 
         birdFootage.videoFeed.elt.addEventListener("loadeddata", () => {
           // birdFootage.videoFeed.play();
-          birdFootage.videoFeed.loop();
+          // birdFootage.videoFeed.loop();
           birdFootage.videoFeed.volume = 0;
 
           birdFootage.videoElement = document.querySelector("video");
@@ -228,18 +304,15 @@ function startSketch() {
       p5.push();
       // p5.imageMode(p5.CENTER);
       // p5.rectMode(p5.CORNER);
-
       // Create a graphics buffer for the dark overlay
-      let overlay = p5.createGraphics(p5.width, birdFootage.height - 60);
       // Draw a dark rectangle over the entire buffer
-      overlay.fill(0, 0, 0, 170);
-      overlay.rect(0, 60, p5.width, birdFootage.height);
-
+      overlay.clear();
+      overlay.fill(0, 0, 0, 80);
+      overlay.rect(0, 0, birdFootage.width, birdFootage.height);
       // Erase a rectangular area around the detected bird
       overlay.erase();
       overlay.rect(box.originX, box.originY, box.width, box.height);
       overlay.noErase();
-
       // Draw the buffer onto the main canvas
       p5.imageMode(p5.CORNER);
       p5.image(overlay, 0, 0);
@@ -267,9 +340,10 @@ function startSketch() {
               y: box.originY + box.height / 2,
             };
             birdTracked = true;
-            birdFootage.videoElement.playbackRate = 0.15;
+            // birdFootage.videoElement.playbackRate = 0.15;
             birdFootage.videoElement.muted = true;
-            playSample();
+
+            // playSample();
           }
         }
       }
@@ -303,7 +377,7 @@ function startSketch() {
         }
       }
 
-      aboutButton.addEventListener("click", toggleAbout);
+      // aboutButton.addEventListener("click", toggleAbout);
     }
 
     p5.mouseReleased = function () {
@@ -318,7 +392,7 @@ function startSketch() {
           currentSound.stop();
         }
 
-        changeVideo();
+        // changeVideo();
       }
     };
 
@@ -340,6 +414,7 @@ function startSketch() {
       // p5.frameRate(25);
       // p5.background(0);
       p5.clear(canvas);
+      // console.log(mouseIsMoving);
       // p5.background(255);
 
       // copy the video stream to the canvas and position it under it
@@ -357,24 +432,26 @@ function startSketch() {
       // p5.noStroke();
       // p5.rect(0, 400, p5.width, 200);
       // if the the model is initialized, run detection on video and draw rectangles around birds
-      if (objectDetector && isDetecting) {
+      if (objectDetector && isDetecting && isMouseHover) {
         // put the detections of the video in results
-        if (frameCounter % 2 === 0) {
-          // Perform object detection only every 2 frames
+        // Perform object detection only every 60 frames
+        if (detectionFlag) {
           const results = objectDetector.detectForVideo(
             birdFootage.videoElement,
             p5.millis()
           );
-          birdsDetected = results.detections.filter(
-            (detection) => detection.categories[0].categoryName === "bird"
-          );
+          birdsDetected = results.detections;
         }
 
         // console.log(results, birdsDetected)
         // draw a rect around each bird
+        console.log(showingBirdCam);
         if (birdsDetected.length > 0) {
-          getLastPosition();
+          // if (!showingBirdCam) {
           drawRectBird();
+          // }
+
+          getLastPosition();
         }
 
         if (birdsDetected.length < 1) {
@@ -386,6 +463,11 @@ function startSketch() {
         // birdCount();
       }
       frameCounter++;
+
+      if (isMouseHover) {
+        // console.log(capturedFrame);
+        // p5.image(capturedFrame, 0, 0, birdFootage.width, birdFootage.height);
+      }
     };
 
     function drawRectBird() {
@@ -481,6 +563,10 @@ function startSketch() {
         birdTrackedPosition.y =
           newTrackedBox.originY + newTrackedBox.height / 2;
         minDistance = 1000;
+
+        showingBirdCam = true;
+      } else {
+        showingBirdCam = false;
       }
     }
 
@@ -510,23 +596,40 @@ function startSketch() {
     // SABINE VERSION
     function displayBirdCam(bird, box) {
       spotlight(box);
-      lines(box);
+      let halfWidth = p5.width / 2;
+      // lines for birdcam
 
       // Draw the bird and mask
       circleMask.fill(0, 0, 0, 255);
       circleMask.circle(circleMaskSize / 2, circleMaskSize / 2, circleMaskSize);
       // lines(box, bird);
       bird.mask(circleMask);
-      p5.imageMode(p5.CENTER);
-      p5.image(
-        bird,
-        p5.width / 2,
-        p5.height / 2 + circleMaskSize / 2 - 20,
-        circleMaskSize,
-        circleMaskSize
-      );
 
-      moodBox(p5.width / 2 + 250, p5.height / 2 + circleMaskSize / 2 + 100);
+      p5.imageMode(p5.CENTER);
+      console.log(box);
+      let middleOfBox = box.originX + box.width / 2;
+      if (middleOfBox >= birdFootage.width / 2) {
+        lines(box, halfWidth);
+
+        p5.image(
+          bird,
+          p5.width / 2 - halfWidth / 2,
+          p5.height / 2,
+          circleMaskSize,
+          circleMaskSize
+        );
+      } else {
+        lines(box, -halfWidth);
+
+        p5.image(
+          bird,
+          p5.width / 2 + halfWidth / 2,
+          p5.height / 2,
+          circleMaskSize,
+          circleMaskSize
+        );
+      }
+      // moodBox(p5.width / 2 + 250, p5.height / 2 + circleMaskSize / 2 + 100);
     }
     function moodBox(x, y) {
       // Fetch and display the mood only once
@@ -557,37 +660,47 @@ function startSketch() {
       p5.pop();
     }
 
-    function lines(box) {
+    function lines(box, halfWidth) {
       p5.push();
 
-      p5.rect();
+      // p5.rect();
 
       p5.stroke(0, 255, 0);
-      p5.strokeWeight(1);
-      p5.line(
-        p5.width / 2 - circleMaskSize / 2,
-        p5.height / 2 + circleMaskSize / 2,
-        box.originX + box.width / 2,
-        box.originY + box.height / 2
-      );
-      p5.line(
-        p5.width / 2 + circleMaskSize / 2,
-        p5.height / 2 + circleMaskSize / 2,
-        box.originX + box.width / 2,
-        box.originY + box.height / 2
-      );
+      p5.strokeWeight(2);
 
-      // p5.stroke(237, 3, 3);
-      // p5.strokeWeight(10)
-      // p5.fill(0, 0, 0, 0);
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2, circleMaskSize + 10, circleMaskSize + 10);
+      // Circle center
+      let cx = p5.width / 2 - halfWidth / 2;
+      let cy = p5.height / 2;
+      let r = circleMaskSize / 2;
 
-      // p5.stroke(0, 255, 0);
-      // p5.strokeWeight(2)
-      // p5.fill(0, 0, 0, 0);
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2, circleMaskSize, circleMaskSize)
+      // Box center
+      let bx = box.originX + box.width / 2;
+      let by = box.originY + box.height / 2;
 
-      // p5.ellipse(p5.width / 2, p5.height / 2 + circleMaskSize / 2.85, circleMaskSize, circleMaskSize)
+      // Compute vector from box center to circle center
+      let dx = cx - bx;
+      let dy = cy - by;
+      let distToCircle = Math.sqrt(dx * dx + dy * dy);
+
+      // Compute angle from box center to circle center
+      let angleToCircle = Math.atan2(dy, dx);
+
+      // Compute the angle for the tangents
+      let offsetAngle = Math.asin(r / distToCircle); // Angle offset for tangents
+
+      // Get perpendicular angles for the tangent lines
+      let tangentAngle1 = angleToCircle + offsetAngle + Math.PI / 2;
+      let tangentAngle2 = angleToCircle - offsetAngle - Math.PI / 2;
+
+      // Compute the exact tangent points on the circle
+      let x1 = cx + r * Math.cos(tangentAngle1);
+      let y1 = cy + r * Math.sin(tangentAngle1);
+      let x2 = cx + r * Math.cos(tangentAngle2);
+      let y2 = cy + r * Math.sin(tangentAngle2);
+
+      // Draw tangent lines from the box center to the circle's edge
+      p5.line(bx, by, x1, y1);
+      p5.line(bx, by, x2, y2);
       p5.pop();
     }
 
