@@ -231,3 +231,32 @@ I think this project needs a last phase to make it ready for release and a stron
 - [ ]  Make sound attached to one detection
 - [ ]  Ask Paul Dinning
 - [ ]  Make official bird video and adjust size
+
+Ok actually, I don't want the matter.js toy because it will make the thing less minimalistic and too complicated?
+
+New checklist
+
+- [X] Make the birdcam appear on hover instead of click
+- [X] Make the cursor binoculars when on video
+- [ ] Fix sound issue
+  - [X] Sound plays twice at the same time sometimes
+  - [X] Only one sample should be playing at the time
+  - [X] When out of any detections, all samples stop playing
+  - [ ] Fade in and out to not have clicks
+- [X] One song - one bird
+- [X] Add title of project and my name, paul dinning credits
+- [ ] Add about section
+- [ ] Contact Paul Dinning
+- [X] Make official Bird video
+- [X] Partir le video a un moment random au début
+- [ ] Choose sounds
+- [X] Make sure sound is okay, consider using audio api instead
+- [ ] Make detections that are close the same bird tracked (adjust treshold)
+- [ ] Clean Code
+- [ ] Make a website for it
+- [ ] Post it
+- [ ] Test it
+
+
+## February 21st 2025 - Morning
+
