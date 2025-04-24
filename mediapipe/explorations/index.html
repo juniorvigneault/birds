@@ -3,6 +3,7 @@
     <title>Inner Birdsong 𓅪</title>
     <link rel="icon" type="image/x-icon" href="assets/images/flavicon.ico" />
     <meta charset="utf-8" />
+    <script src="https://cdn.jsdelivr.net/gh/kinectron/kinectron@latest/client/dist/kinectron-client.js"></script>
 
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"
@@ -31,42 +32,44 @@
   </svg>
 
   <body>
-    <div id="content">
-      <main>
-        <img src="assets/images/loading.gif" alt="" id="loadingGif" />
-        <div id="loadingMessage">This may take a moment</div>
-        <div id="container"></div>
-      </main>
+    <div id="flipWrapper">
+      <div id="content">
+        <main>
+          <img src="assets/images/loading.gif" alt="" id="loadingGif" />
+          <div id="loadingMessage">This may take a moment</div>
+          <div id="container"></div>
+        </main>
 
-      <div id="detectionsTitle">
-        <span>Live Detections </span>
-        <div class="blinking-circle"></div>
+        <!-- <div id="detectionsTitle">
+          <span>Live Detections </span>
+          <div class="blinking-circle"></div>
+        </div> -->
+
+        <!-- <footer>
+          <div>
+            <div></div>
+            <span id="title">Inner Birdsong</span>
+
+            <span
+              >by
+              <a
+                href="https://www.instagram.com/junior.vigneault/"
+                target="_blank"
+                >Junior Vigneault</a
+              ></span
+            >
+            ---
+            <span
+              >video by
+              <a
+                href="https://www.youtube.com/@PaulDinningVideosforCats"
+                target="_blank"
+                >Paul Dinning</a
+              ></span
+            >
+          </div>
+        </footer> -->
       </div>
-
-      <footer>
-        <div>
-          <div></div>
-          <span id="title">Inner Birdsong</span>
-
-          <span
-            >by
-            <a
-              href="https://www.instagram.com/junior.vigneault/"
-              target="_blank"
-              >Junior Vigneault</a
-            ></span
-          >
-          ---
-          <span
-            >video by
-            <a
-              href="https://www.youtube.com/@PaulDinningVideosforCats"
-              target="_blank"
-              >Paul Dinning</a
-            ></span
-          >
-        </div>
-      </footer>
     </div>
     <div id="startModal">
       <div id="title-modal">
