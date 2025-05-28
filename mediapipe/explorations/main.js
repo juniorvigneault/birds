@@ -134,8 +134,9 @@ function startSketch() {
   let sketch = new p5(function (p5) {
     p5.preload = function () {
       for (let i = 1; i <= numSamples; i++) {
-        // Assuming the file names are numbered from 1 to numSamples
-        let sample = p5.loadSound(`assets/sounds/birdSounds/${i}.mp3`);
+        let sample = p5.loadSound(`assets/sounds/birdSounds/${i}.mp3`, (s) => {
+          s.setVolume(0.2); // 👈 set volume for each loaded sample
+        });
         samples.push(sample);
       }
     };
@@ -154,7 +155,7 @@ function startSketch() {
       // create video footage
       // randomVideoItem = Math.floor(p5.random(0, numVideos));
       // currentVideoIndex = randomVideoItem;
-      birdFootage.path = `assets/videos/birds.mp4`;
+      birdFootage.path = `assets/videos/birds_good_1.mp4`;
       // birdFootage.path = `assets/videos/0.mp4`;
 
       birdFootage.videoFeed = p5.createVideo(birdFootage.path);
@@ -172,7 +173,7 @@ function startSketch() {
       loadingGif.style.display = "none";
 
       loadingMessage.style.display = "none";
-      jumpToRandomTime();
+      // jumpToRandomTime();
 
       birdFootage.videoElement.style.visibility = "visible";
       // birdFootage.htmlVideoLayer.style.zIndex = '-1';
@@ -276,9 +277,12 @@ function startSketch() {
         } catch (e) {
           console.warn("Could not resume video:", e);
         }
+
+        // Continue drawing
+        drawJoints();
         blackMapping();
 
-        return;
+        return; // still exit early but after drawing UI
       }
 
       let birdDetectedThisFrame = false;
@@ -538,8 +542,9 @@ function startSketch() {
       // console.log(`Jumping to time: ${randomTime}`);
 
       // Wait for the video's metadata to be loaded to ensure the duration is available
-      video.addEventListener("loadedmetadata", function () {
-        jumpToRandomTime(); // Call after video metadata is loaded
+      video.addEventListener("loadedmetadata", function onMeta() {
+        video.removeEventListener("loadedmetadata", onMeta); // avoid recursion
+        jumpToRandomTime();
       });
     }
 
