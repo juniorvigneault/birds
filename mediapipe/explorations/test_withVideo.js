@@ -41,8 +41,8 @@ let birdFootage = {
   videoElement: undefined,
   path: undefined,
   isRunning: false,
-  width: 640,
-  height: 480,
+  width: 550,
+  height: 308,
 };
 
 let earCursor;
@@ -116,7 +116,7 @@ function startSketch() {
       randomVideoItem = Math.floor(p5.random(0, numVideos));
       currentVideoIndex = randomVideoItem;
       // birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
-      birdFootage.path = `assets/videos/birds.mp4`;
+      birdFootage.path = `assets/videos/birds_small.mp4`;
 
       birdFootage.videoFeed = p5.createVideo(birdFootage.path);
       // birdFootage.videoFeed.position(0, 0);
