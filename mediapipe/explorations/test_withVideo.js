@@ -115,8 +115,8 @@ function startSketch() {
       // create video footage
       randomVideoItem = Math.floor(p5.random(0, numVideos));
       currentVideoIndex = randomVideoItem;
-      birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
-      // birdFootage.path = `assets/videos/0.mp4`;
+      // birdFootage.path = `assets/videos/${randomVideoItem}.mp4`;
+      birdFootage.path = `assets/videos/birds.mp4`;
 
       birdFootage.videoFeed = p5.createVideo(birdFootage.path);
       // birdFootage.videoFeed.position(0, 0);
