@@ -21,24 +21,11 @@ body {
   font-family: "Habitus Regular";
 }
 
-/* canvas,
-video,
-main,
-header,
-footer,
-#container {
-  transform: rotate(180deg);
-} */
-
 #birdCounter {
   font-family: "Habitus Regular";
   position: absolute;
   top: 135px;
   right: 270px;
-}
-
-#custom-cursor {
-  display: none; /* Hide the SVG from the page */
 }
 
 #instructionsGif {
@@ -56,13 +43,6 @@ main {
   height: 100vh;
 }
 
-li {
-  font-size: 16px;
-}
-ol {
-  margin-top: 5px;
-  padding-inline-start: 20px;
-}
 .blinking-circle {
   width: 10px;
   height: 10px;
@@ -75,7 +55,6 @@ ol {
 
 #detectionsTitle {
   display: flex;
-  z-index: -99;
 }
 
 @keyframes blink {
@@ -95,24 +74,18 @@ p {
   padding: 0;
   margin: 0;
 }
-
+#small {
+  font-size: 12;
+}
 video {
   position: absolute;
   visibility: hidden;
-  top: -30;
-  left: -45;
-  width: 1024px;
-  height: 576px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* height: 410px; */
   z-index: -1; /* Ensure it stays behind the canvas */
   object-fit: cover; /* Make sure the video scales correctly */
-  /* clip-path: inset(13% 0% 13% 0%); */
-}
-canvas {
-  position: absolute;
-  top: -30;
-  left: -45;
-  width: 100%;
-  height: 100%;
 }
 header {
   position: absolute;
@@ -136,14 +109,19 @@ header {
 
 #container {
   position: relative;
-  width: 1024px; /* Set the desired width for your canvas/video */
-  height: 576px; /* Set the desired height for your canvas/video */
+  width: 480px;
+  height: 800px; /* Set the desired height for your canvas/video */
   margin: auto;
-  /* pointer-events: none; */
-
-  /* z-index: -99; */
+  z-index: -99;
 }
 
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 #instructions {
   border-style: dotted;
   padding: 10px;
@@ -154,12 +132,10 @@ footer {
   font-family: "Habitus Regular";
   margin: 10px;
   bottom: 0;
-  z-index: -99;
 }
 
 #title {
-  font-family: "Habitus Regular";
-  font-size: 16px;
+  font-size: 32px;
 }
 
 #italic {
@@ -170,10 +146,6 @@ footer {
   display: none;
   /* background-color: aliceblue; */
   z-index: 99;
-}
-
-#aboutButton:hover {
-  cursor: pointer;
 }
 
 /* Basic styling for the dialog box */
@@ -187,14 +159,11 @@ footer {
   left: 50%; /* Center horizontally */
   transform: translate(-50%, -50%); /* Offset by half of its own size */
   background-color: white; /* Background color */
-  padding: 20px 20px; /* Padding inside the modal */
-
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow for a better look */
+  padding: 10px 20px; /* Padding inside the modal */
+  padding-bottom: 20px;
   z-index: 1000; /* Ensure it’s above other elements */
-
   height: fit-content;
-  max-width: 200px; /* Max width */
-  /* background-color: rgb(38, 0, 255); */
+  /* max-width: 500px; Max width */
 }
 /* Center content within the dialog */
 
@@ -209,10 +178,13 @@ footer {
   /* margin-top: 20px; */
   /* padding: 3px 7px; */
   font-family: "Habitus Regular";
+  border-radius: 0;
+  border-width: 1px;
 }
 #loadingGif {
-  max-width: 2%;
-  min-width: 20px;
+  /* max-width: 3%; */
+  /* min-width: 20px; */
+  width: 25px;
   position: absolute;
   z-index: 1;
   top: auto;
@@ -227,6 +199,7 @@ footer {
 #loadingMessage {
   position: absolute;
   z-index: 1;
+  font-size: 16px;
   color: lightgray;
   top: auto;
   left: auto;
@@ -238,6 +211,9 @@ footer {
   user-select: none;
 }
 
+#instructionsText {
+  font-family: "Habitus-Regular";
+}
 /* Container for aligning instructions and button */
 
 #numbers {
@@ -246,14 +222,10 @@ footer {
 }
 /* Style for the instructions text */
 #instructionsText {
-  font-family: "Habitus Regular";
-
-  margin-bottom: 11px;
-}
-
-#instructionsText3 {
+  margin-top: 20px;
   font-family: "Habitus Regular";
   text-align: left; /* Align text to the left */
+  color: rgb(0, 200, 0);
 }
 #arrow {
   color: black;
@@ -275,23 +247,22 @@ footer {
   pointer-events: none;
 }
 
+#sound {
+  color: blue;
+}
 #title-modal {
   font-family: "Habitus Regular";
-  margin: 0;
-  padding: 0;
   /* background-color: rgb(224, 224, 224); */
 }
 
 #startButton {
   font-family: "Habitus Regular";
-  font-size: 16px;
+  font-size: 18;
   margin-top: 5px;
-  padding: 2px 13px 5px 13px;
-  border-width: 1.5px;
-  background-color: rgb(255, 255, 255);
+  padding: 2px 10px;
   /* position: absolute; */
   /* right: 16;
+  
   margin-top: 5px; */
-  border-color: lightgray;
-  /* float: right; */
+  float: right;
 }

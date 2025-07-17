@@ -6,6 +6,14 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2";
 
 // mediapipe stuff
+let lastTimestamp = 0;
+// Add these new variables at the top with your other declarations
+// Add these new variables at the top with your other declarations
+let activeBirdDetection = null; // The currently locked/active bird
+let activeBirdId = null; // ID to track the specific bird
+let isLockedOnBird = false; // Flag to indicate if we're locked onto a bird
+let mouseOutsideTimeout = null; // Timeout for when mouse is outside detection
+let timeoutDuration = 2000; // 2 seconds in milliseconds
 let objectDetector;
 let runningMode = "VIDEO";
 let habitusFont;
@@ -59,8 +67,8 @@ let birdFootage = {
   videoElement: undefined,
   path: undefined,
   isRunning: false,
-  width: 1024,
-  height: 576,
+  width: 480,
+  height: 360,
   isReady: false,
 };
 let showingBirdCam = false;
@@ -71,7 +79,7 @@ let earCursor;
 let birdIndex = 0;
 let tagged = false;
 let circleMask;
-let circleMaskSize = 355;
+let circleMaskSize = 400;
 let minCircleSize = 355;
 let maxCircleSize = 420; // or whatever you want for expansion
 let birdTracked = false;
@@ -80,7 +88,7 @@ let birdTrackedPosition = {};
 let minDistance = 1000;
 let samples = [];
 let numVideos = 63;
-let numSamples = 173;
+let numSamples = 247;
 let isSamplePlaying = false;
 let soundOn = false;
 let currentSound;
@@ -93,64 +101,6 @@ let vanillaCanvas;
 let vanillaSamples = [];
 let svgURLObject;
 let kinectron;
-
-// Safe video operation functions
-function safeVideoPlay(videoFeed) {
-  if (!videoFeed || !videoFeed.elt) return Promise.reject("No video element");
-
-  const videoElement = videoFeed.elt;
-
-  // Check if video is ready and not already playing
-  if (videoElement.readyState >= 2 && videoElement.paused) {
-    return videoFeed.play().catch((error) => {
-      console.warn("Video play failed:", error);
-      return Promise.reject(error);
-    });
-  }
-  return Promise.resolve();
-}
-
-function safeVideoLoop(videoFeed) {
-  if (!videoFeed || !videoFeed.elt) return;
-
-  const videoElement = videoFeed.elt;
-
-  // Check if video is ready
-  if (videoElement.readyState >= 2) {
-    try {
-      videoFeed.loop();
-    } catch (error) {
-      console.warn("Video loop failed:", error);
-    }
-  }
-}
-
-function safeVideoPause(videoFeed) {
-  if (!videoFeed || !videoFeed.elt) return;
-
-  const videoElement = videoFeed.elt;
-
-  if (!videoElement.paused) {
-    try {
-      videoFeed.pause();
-    } catch (error) {
-      console.warn("Video pause failed:", error);
-    }
-  }
-}
-
-function waitForVideoReady(videoFeed) {
-  return new Promise((resolve) => {
-    const checkReady = () => {
-      if (videoFeed.elt.readyState >= 2) {
-        resolve();
-      } else {
-        setTimeout(checkReady, 100);
-      }
-    };
-    checkReady();
-  });
-}
 
 window.onload = function () {
   document.getElementById("startButton").addEventListener("click", function () {
@@ -165,15 +115,6 @@ window.onload = function () {
       content.style.opacity = 1;
       startSketch();
     }, 50);
-
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        tracking = false;
-        playerID = null;
-        latestBody = null;
-        console.log("Tracking reset");
-      }
-    });
   });
 };
 
@@ -182,31 +123,31 @@ function startSketch() {
     p5.preload = function () {
       for (let i = 1; i <= numSamples; i++) {
         let sample = p5.loadSound(`assets/sounds/birdSounds/${i}.mp3`, (s) => {
-          s.setVolume(0.2); // 👈 set volume for each loaded sample
+          s.setVolume(0.3); // 👈 set volume for each loaded sample
         });
         samples.push(sample);
       }
     };
 
     p5.setup = async function () {
-      canvas = p5.createCanvas(birdFootage.width, birdFootage.height);
+      canvas = p5.createCanvas(480, 800);
       isDetecting = false;
+      frameCounter = 0; // Add frame counter for detection every 2 frames
 
       canvas.parent("container");
       loadingGif = document.querySelector("#loadingGif");
       let loadingMessage = document.querySelector("#loadingMessage");
 
-      birdFootage.path = `assets/videos/birds_1.mp4`;
+      birdFootage.path = `assets/videos/birds_good.mp4`;
 
       // Create video with proper event handling
       birdFootage.videoFeed = p5.createVideo(birdFootage.path, () => {
         console.log("Video loaded successfully");
         birdFootage.isReady = true;
 
-        // Wait a bit more to ensure video is fully ready
-        setTimeout(() => {
-          safeVideoLoop(birdFootage.videoFeed);
-        }, 100);
+        // Set loop and other properties
+        birdFootage.videoFeed.elt.loop = true;
+        // birdFootage.videoFeed.elt.muted = true;
       });
 
       overlay = p5.createGraphics(birdFootage.width, birdFootage.height);
@@ -214,159 +155,274 @@ function startSketch() {
       // Access the html video element
       birdFootage.videoElement = birdFootage.videoFeed.elt;
 
-      // Add comprehensive event listeners for video state
-      birdFootage.videoElement.addEventListener("loadeddata", () => {
-        console.log("Video data loaded");
-      });
-
-      birdFootage.videoElement.addEventListener("canplaythrough", () => {
-        console.log("Video can play through");
-        birdFootage.isReady = true;
-
-        loadingGif.style.display = "none";
-        loadingMessage.style.display = "none";
-        birdFootage.videoElement.style.visibility = "visible";
-      });
-
-      birdFootage.videoElement.addEventListener("error", (e) => {
-        console.error("Video error:", e);
-      });
-
-      birdFootage.videoElement.addEventListener("loadstart", () => {
-        console.log("Video load started");
-      });
-
-      birdFootage.videoElement.addEventListener("loadedmetadata", () => {
-        console.log("Video metadata loaded");
-      });
-
       await initializeObjectDetector();
+
+      // // Add comprehensive event listeners for video state
+      // birdFootage.videoElement.addEventListener("loadeddata", () => {
+      //   console.log("Video data loaded");
+      // });
+
+      // birdFootage.videoElement.addEventListener("canplaythrough", () => {
+      // console.log("Video can play through");
+      loadingGif.style.display = "none";
+      loadingMessage.style.display = "none";
+      birdFootage.videoElement.style.visibility = "visible";
+      birdFootage.videoElement.play(); // ✅ Correct method call
+      // Start detection once video is ready
+      isDetecting = true;
+      // });
+
+      async function initializeObjectDetector() {
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+        );
+        objectDetector = await ObjectDetector.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite`,
+            delegate: "GPU",
+          },
+          scoreThreshold: 0.1,
+          runningMode: "VIDEO",
+        });
+      }
 
       circleMask = p5.createGraphics(circleMaskSize, circleMaskSize);
       birdFootage.videoFeed.parent("container");
-
-      let container = document.querySelector("#container");
-
-      container.addEventListener(
-        "mouseleave",
-        function (event) {
-          mouseIsOverVideo = false;
-        },
-        false
-      );
-      container.addEventListener(
-        "mouseover",
-        function (event) {
-          mouseIsOverVideo = true;
-        },
-        false
-      );
     };
 
+    // Modified draw function with sticky bird behavior
+    // Modified draw function with sticky bird behavior
     p5.draw = function () {
       p5.clear(canvas);
-
+      // p5.background(255);
       // Only proceed if video is ready
       if (!birdFootage.isReady) {
         return;
       }
 
-      captureFrameAndDetect(); // Run detection on the paused frame
-
-      if (!latestBody) {
-        birdsDetected = [];
-        birdTracked = false;
-        birdTrackedPosition = {};
-        stopAllSamples();
-
-        // Safely resume video
-        if (birdFootage.videoFeed && birdFootage.videoFeed.elt.paused) {
-          safeVideoLoop(birdFootage.videoFeed);
-        }
-
-        return;
-      }
-
       let birdDetectedThisFrame = false;
+      let mouseInsideAnyDetection = false;
+      let activeBirdStillDetected = false;
 
-      for (let i = 0; i < birdsDetected.length; i++) {
-        let box = birdsDetected[i].boundingBox;
-
-        let isMouseInside =
-          p5.mouseX > box.originX &&
-          p5.mouseX < box.originX + box.width &&
-          p5.mouseY > box.originY &&
-          p5.mouseY < box.originY + box.height;
-
-        if (isMouseInside) {
-          container.style.cursor = `url(${svgURLObject}) 5 5, auto`;
-
-          birdTrackedPosition = {
-            x: box.originX + box.width / 2,
-            y: box.originY + box.height / 2,
-          };
-          birdTracked = true;
-          birdDetectedThisFrame = true;
-
-          // Safely pause video
-          safeVideoPause(birdFootage.videoFeed);
-
-          // 👉 Play ONE sound
-          if (!currentSound || !currentSound.isPlaying()) {
-            if (currentSound) {
-              currentSound.stop(); // stop previous if somehow still hanging
-            }
-            playRandomSample(); // play new sample
-          }
-
-          isMouseInsideDetection = true;
-
-          break; // stop checking after first detection
-        }
-      }
-
-      if (!birdDetectedThisFrame) {
-        container.style.cursor = `auto`;
-        birdTracked = false;
-        stopAllSamples(); // 🔴 Stop all samples when no bird is detected
-
-        // 👉 Resume the video if it was paused
-        if (birdFootage.videoFeed && birdFootage.videoFeed.elt.paused) {
-          safeVideoLoop(birdFootage.videoFeed);
-        }
-      }
-
+      // Continuous bird detection every frame
       if (objectDetector && isDetecting) {
-        detectionCounter++;
-        if (detectionCounter >= detectionFrameSkip) {
-          detectionCounter = 0;
-
-          // Only detect if video is ready and playing
-          if (
-            birdFootage.videoElement &&
-            birdFootage.videoElement.readyState >= 2
-          ) {
-            try {
-              const results = objectDetector.detectForVideo(
-                birdFootage.videoElement,
-                p5.millis()
-              );
-              birdsDetected = results.detections;
-            } catch (error) {
-              console.warn("Detection error:", error);
+        // Perform object detection every frame
+        if (
+          birdFootage.videoElement &&
+          birdFootage.videoElement.readyState >= 2
+        ) {
+          try {
+            // Generate monotonic timestamp - FIXED VERSION
+            let currentTime = performance.now();
+            if (currentTime <= lastTimestamp) {
+              currentTime = lastTimestamp + 1; // Ensure monotonic increase
             }
+            lastTimestamp = currentTime;
+
+            const results = objectDetector.detectForVideo(
+              birdFootage.videoElement,
+              currentTime // Use monotonic timestamp
+            );
+
+            birdsDetected = results.detections;
+          } catch (error) {
+            console.warn("Detection error:", error);
+            birdsDetected = []; // Clear detections on error
           }
         }
 
+        // Draw detection boxes immediately after detection
         if (birdsDetected.length > 0) {
+          // Draw rectangles first
           drawRectBird();
-          getLastPosition();
-        } else {
-          stopAllSamples();
+
+          // Check if the currently active bird is still detected
+          if (isLockedOnBird && activeBirdDetection) {
+            let closestBird = findClosestBird(activeBirdDetection);
+            if (closestBird) {
+              activeBirdDetection = closestBird;
+              activeBirdStillDetected = true;
+            }
+          }
+
+          // Check mouse interactions for new bird selection
+          for (let i = 0; i < birdsDetected.length; i++) {
+            let box = birdsDetected[i].boundingBox;
+
+            // Make sure coordinates are properly scaled
+            let scaledBox = {
+              originX: box.originX,
+              originY: box.originY,
+              width: box.width,
+              height: box.height,
+            };
+
+            let isMouseInside =
+              p5.mouseX > scaledBox.originX &&
+              p5.mouseX < scaledBox.originX + scaledBox.width &&
+              p5.mouseY > scaledBox.originY &&
+              p5.mouseY < scaledBox.originY + scaledBox.height;
+
+            if (isMouseInside) {
+              container.style.cursor = `url(${svgURLObject}) 5 5, auto`;
+
+              // Clear any existing timeout since mouse is inside a detection
+              if (mouseOutsideTimeout) {
+                clearTimeout(mouseOutsideTimeout);
+                mouseOutsideTimeout = null;
+              }
+
+              // Check if this is a different bird than the currently active one
+              let isDifferentBird =
+                !isLockedOnBird ||
+                !activeBirdDetection ||
+                Math.abs(scaledBox.originX - activeBirdDetection.originX) >
+                  50 ||
+                Math.abs(scaledBox.originY - activeBirdDetection.originY) > 50;
+
+              if (isDifferentBird) {
+                // Stop current sample before switching to new bird
+                stopAllSamples();
+
+                // Lock onto this new bird
+                activeBirdDetection = scaledBox;
+                activeBirdId = i;
+                isLockedOnBird = true;
+
+                // Start new sample for the new bird
+                playRandomSample();
+              }
+
+              birdTrackedPosition = {
+                x: scaledBox.originX + scaledBox.width / 2,
+                y: scaledBox.originY + scaledBox.height / 2,
+              };
+              birdTracked = true;
+              birdDetectedThisFrame = true;
+              mouseInsideAnyDetection = true;
+
+              break;
+            }
+          }
+
+          // Handle active bird behavior (whether mouse is inside or not)
+          if (
+            isLockedOnBird &&
+            (activeBirdStillDetected || mouseInsideAnyDetection)
+          ) {
+            // Slow down video
+            birdFootage.videoElement.playbackRate = 0.1;
+            birdFootage.videoElement.muted = true;
+
+            // Keep playing the current sample (don't restart unless it's a new bird)
+            if (!currentSound || !currentSound.isPlaying()) {
+              playRandomSample();
+            }
+
+            // Create bird image for the active bird
+            createBirdImage(activeBirdDetection);
+
+            // Continue tracking
+            getLastPosition();
+          }
+
+          // Handle timeout when mouse is outside but bird is still detected
+          if (
+            isLockedOnBird &&
+            activeBirdStillDetected &&
+            !mouseInsideAnyDetection
+          ) {
+            // Start timeout if not already started
+            if (!mouseOutsideTimeout) {
+              mouseOutsideTimeout = setTimeout(() => {
+                // Reset after 3 seconds
+                resetBirdDetection();
+              }, timeoutDuration);
+            }
+
+            // Continue showing the bird detection during timeout
+            birdFootage.videoElement.playbackRate = 0.1;
+            birdFootage.videoElement.muted = true;
+
+            if (!currentSound || !currentSound.isPlaying()) {
+              playRandomSample();
+            }
+
+            createBirdImage(activeBirdDetection);
+            getLastPosition();
+          }
+        }
+
+        // Handle case when active bird is no longer detected
+        if (
+          isLockedOnBird &&
+          !activeBirdStillDetected &&
+          !mouseInsideAnyDetection
+        ) {
+          resetBirdDetection();
         }
       }
     };
 
+    function findClosestBird(activeBird) {
+      if (!activeBird || birdsDetected.length === 0) return null;
+
+      let minDistance = Infinity;
+      let closestBird = null;
+
+      let activeCenterX = activeBird.originX + activeBird.width / 2;
+      let activeCenterY = activeBird.originY + activeBird.height / 2;
+
+      for (let i = 0; i < birdsDetected.length; i++) {
+        let box = birdsDetected[i].boundingBox;
+        let boxCenterX = box.originX + box.width / 2;
+        let boxCenterY = box.originY + box.height / 2;
+
+        let distance = p5.dist(
+          activeCenterX,
+          activeCenterY,
+          boxCenterX,
+          boxCenterY
+        );
+
+        // Use a reasonable threshold to determine if it's the same bird
+        if (distance < 100 && distance < minDistance) {
+          minDistance = distance;
+          closestBird = {
+            originX: box.originX,
+            originY: box.originY,
+            width: box.width,
+            height: box.height,
+          };
+        }
+      }
+
+      return closestBird;
+    }
+    // New function to reset bird detection
+    function resetBirdDetection() {
+      // Clear timeout
+      if (mouseOutsideTimeout) {
+        clearTimeout(mouseOutsideTimeout);
+        mouseOutsideTimeout = null;
+      }
+
+      // Clear the active bird
+      activeBirdDetection = null;
+      activeBirdId = null;
+      isLockedOnBird = false;
+
+      container.style.cursor = `auto`;
+      birdTracked = false;
+      showingBirdCam = false;
+
+      // Resume normal video playback
+      birdFootage.videoElement.playbackRate = 1;
+      birdFootage.videoElement.muted = false;
+
+      // Stop all samples
+      stopAllSamples();
+    }
     function playRandomSample() {
       let randomIndex = p5.floor(p5.random(samples.length));
       currentSound = samples[randomIndex];
@@ -380,94 +436,46 @@ function startSketch() {
         currentSound = null;
       }
     }
-
-    function playSample(birdIndex) {
-      if (!isMouseHover || !isDetecting) return; // Prevent new sounds if detection is off
-
-      // Stop any previously playing sound before starting a new one
-      if (birdSamples[birdIndex] && birdSamples[birdIndex].isPlaying()) {
-        birdSamples[birdIndex].stop(); // Stop the previous sound if needed
-      }
-
-      // Select a random sound
-      let randomIndex = p5.floor(p5.random(samples.length));
-      let newSound = samples[randomIndex];
-
-      // Store the new sound for the bird
-      birdSamples[birdIndex] = newSound;
-      newSound.loop(); // Play the new sound
-    }
-
-    function captureFrameAndDetect() {
-      if (!birdFootage.isReady) return;
-
-      capturedFrame = birdFootage.videoFeed;
-      isDetecting = true;
-    }
-
-    function stopDetection() {
-      console.log("stop detection");
-      isDetecting = false;
-    }
-
-    async function initializeObjectDetector() {
-      try {
-        const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
-        );
-        objectDetector = await ObjectDetector.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite`,
-            delegate: "GPU",
-          },
-          scoreThreshold: 0.1,
-          runningMode: "VIDEO",
-        });
-        console.log("Object detector initialized successfully");
-      } catch (error) {
-        console.error("Failed to initialize object detector:", error);
-      }
-    }
-
-    function spotlight(box) {
-      p5.push();
-
-      // Create a graphics buffer for the dark overlay
-      // Draw a dark rectangle over the entire buffer
-      overlay.clear();
-      overlay.fill(0, 0, 0, 80);
-      overlay.rect(0, 0, birdFootage.width, birdFootage.height);
-      // Erase a rectangular area around the detected bird
-      overlay.erase();
-      overlay.rect(box.originX, box.originY, box.width, box.height);
-      overlay.noErase();
-      // Draw the buffer onto the main canvas
-      p5.imageMode(p5.CORNER);
-      p5.image(overlay, 0, 0);
-      p5.pop();
-    }
-
-    function jumpToRandomTime() {
-      let video = birdFootage.videoElement;
-      // Check if the video duration is valid and not NaN
-      if (!video || isNaN(video.duration) || video.duration === Infinity) {
-        console.log("Video duration is not available yet.");
-        return; // Exit if duration is not available
-      }
-
-      // Generate a random time between 0 and the video's duration
-      let randomTime = Math.random() * video.duration;
-
-      // Set the video's current time to the random time
-      video.currentTime = randomTime;
-      console.log(`Jumping to time: ${randomTime}`);
-    }
-
+    // Modified drawRectBird function to highlight the active bird differently
     function drawRectBird() {
+      p5.push();
+      p5.strokeWeight(2);
+
       for (let i = 0; i < birdsDetected.length; i++) {
         let box = birdsDetected[i].boundingBox;
-        // Additional drawing logic can be added here
+
+        // Check if this is the active bird
+        let isActiveBird =
+          isLockedOnBird &&
+          activeBirdDetection &&
+          Math.abs(box.originX - activeBirdDetection.originX) < 10 &&
+          Math.abs(box.originY - activeBirdDetection.originY) < 10;
+
+        // Check if the mouse is inside the bounding box
+        let isMouseInside =
+          p5.mouseX > box.originX &&
+          p5.mouseX < box.originX + box.width &&
+          p5.mouseY > box.originY &&
+          p5.mouseY < box.originY + box.height;
+
+        if (isActiveBird) {
+          // Active bird gets a different color (e.g., blue)
+          p5.stroke(0, 0, 255);
+          p5.fill(0, 0, 255, 50); // Semi-transparent blue fill
+        } else if (isMouseInside) {
+          // Mouse hover gets green
+          p5.stroke(0, 255, 0);
+          p5.fill(0, 255, 0, 50); // Semi-transparent green fill
+        } else {
+          // Regular detection boxes
+          p5.stroke(0, 255, 0);
+          p5.noFill();
+        }
+
+        // Draw rectangle with exact coordinates from detection
+        p5.rect(box.originX, box.originY, box.width, box.height);
       }
+      p5.pop();
     }
 
     function createBirdImage(box) {
@@ -489,80 +497,41 @@ function startSketch() {
       }
     }
 
-    // SABINE VERSION
     function getLastPosition() {
-      if (birdTracked) {
-        let minIndex = -1;
-        let minDistance = 1000;
-
-        for (let i = 0; i < birdsDetected.length; i++) {
-          let box = birdsDetected[i].boundingBox;
-
-          let boxDist = p5.dist(
-            birdTrackedPosition.x,
-            birdTrackedPosition.y,
-            box.originX + box.width / 2,
-            box.originY + box.height / 2
-          );
-          if (boxDist < minDistance) {
-            minDistance = boxDist;
-            minIndex = i;
-          }
-        }
-
-        // 🧠 Add a safety check here before using minIndex:
-        if (minIndex !== -1 && birdsDetected[minIndex]) {
-          let newTrackedBox = birdsDetected[minIndex].boundingBox;
-
-          createBirdImage(newTrackedBox);
-
-          birdTrackedPosition.x =
-            newTrackedBox.originX + newTrackedBox.width / 2;
-          birdTrackedPosition.y =
-            newTrackedBox.originY + newTrackedBox.height / 2;
-
-          showingBirdCam = true;
-        } else {
-          showingBirdCam = false;
-        }
+      if (birdTracked && isLockedOnBird && activeBirdDetection) {
+        // Update the tracked position to the active bird's position
+        birdTrackedPosition.x =
+          activeBirdDetection.originX + activeBirdDetection.width / 2;
+        birdTrackedPosition.y =
+          activeBirdDetection.originY + activeBirdDetection.height / 2;
+        showingBirdCam = true;
       } else {
         showingBirdCam = false;
       }
     }
+    function spotlight(box) {
+      p5.push();
 
-    function drawJoints() {
-      if (!latestBody) return;
-
-      const joints = latestBody.joints;
-      let time = p5.millis() / 300;
-
-      // Joints to skip
-      const skipJoints = [6, 10, 21, 22, 23, 24];
-
-      for (let i = 0; i < joints.length; i++) {
-        let joint = joints[i];
-        let x = joint.depthX * birdFootage.width;
-        let y = joint.depthY * birdFootage.height;
-
-        if (skipJoints.includes(i)) continue;
-
-        // Style for ellipses
-        let isHand = i === 7 || i === 11;
-        let baseSize = isHand ? 20 : 8;
-        let pulse = isHand ? p5.sin(time) * 5 + baseSize : baseSize;
-        let color = isHand ? [255, 0, 0] : [0, 255, 0];
-
-        p5.noStroke();
-        p5.fill(...color);
-        p5.ellipse(x, y, pulse, pulse);
-      }
+      // Create a graphics buffer for the dark overlay
+      // Draw a dark rectangle over the entire buffer
+      overlay.clear();
+      overlay.fill(0, 0, 0, 80);
+      overlay.rect(0, 0, birdFootage.width, birdFootage.height);
+      // Erase a rectangular area around the detected bird
+      overlay.erase();
+      overlay.rect(box.originX, box.originY, box.width, box.height);
+      overlay.noErase();
+      // Draw the buffer onto the main canvas
+      p5.imageMode(p5.CORNER);
+      p5.image(overlay, 0, 0);
+      p5.pop();
     }
 
     // SABINE VERSION
     function displayBirdCam(bird, box) {
       if (!bird || !box) return;
 
-      spotlight(box);
+      // spotlight(box);
       let halfWidth = p5.width / 2;
 
       // Draw the bird and mask
@@ -577,27 +546,18 @@ function startSketch() {
       }
 
       p5.imageMode(p5.CENTER);
-      let middleOfBox = box.originX + box.width / 2;
 
-      if (middleOfBox >= birdFootage.width / 2) {
-        lines(box, halfWidth);
-        p5.image(
-          bird,
-          p5.width / 2 - halfWidth / 2,
-          p5.height / 2,
-          circleMaskSize,
-          circleMaskSize
-        );
-      } else {
-        lines(box, -halfWidth);
-        p5.image(
-          bird,
-          p5.width / 2 + halfWidth / 2,
-          p5.height / 2,
-          circleMaskSize,
-          circleMaskSize
-        );
-      }
+      lines(box, halfWidth);
+      p5.image(
+        bird,
+        p5.width / 2,
+        p5.height / 2 + circleMaskSize / 2,
+        circleMaskSize,
+        circleMaskSize
+      );
+
+      // Add mood box
+      // moodBox(p5.width / 2 + 100, p5.height / 2 + circleMaskSize / 2 + 100);
     }
 
     function moodBox(x, y) {
@@ -629,8 +589,8 @@ function startSketch() {
       p5.strokeWeight(2);
 
       // Circle center
-      let cx = p5.width / 2 - halfWidth / 2;
-      let cy = p5.height / 2;
+      let cx = p5.width / 2;
+      let cy = p5.height / 2 + circleMaskSize / 2;
       let r = circleMaskSize / 2;
 
       // Box center
@@ -662,6 +622,20 @@ function startSketch() {
       p5.line(bx, by, x1, y1);
       p5.line(bx, by, x2, y2);
       p5.pop();
+    }
+
+    // Add the getRandomMood function from the second file
+    async function getRandomMood() {
+      try {
+        const response = await fetch("moods.json");
+        const data = await response.json();
+        const moods = data.moods;
+        const randomIndex = Math.floor(Math.random() * moods.length);
+        return moods[randomIndex];
+      } catch (error) {
+        console.error("Error fetching the JSON file:", error);
+        return "mysterious"; // fallback mood
+      }
     }
   }); // end of p5 sketch
 }
