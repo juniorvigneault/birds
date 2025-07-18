@@ -169,6 +169,7 @@ function startSketch() {
       birdFootage.videoElement.style.visibility = "visible";
       birdFootage.videoElement.play(); // ✅ Correct method call
       // Start detection once video is ready
+      birdFootage.videoElement.mute = "true";
       isDetecting = true;
       // });
 
@@ -192,17 +193,17 @@ function startSketch() {
 
     // Modified draw function with sticky bird behavior
     // Modified draw function with sticky bird behavior
+
+    // Modified draw function with random bird selection every frame (chaotic version)
     p5.draw = function () {
       p5.clear(canvas);
-      // p5.background(255);
+
       // Only proceed if video is ready
       if (!birdFootage.isReady) {
         return;
       }
 
       let birdDetectedThisFrame = false;
-      let mouseInsideAnyDetection = false;
-      let activeBirdStillDetected = false;
 
       // Continuous bird detection every frame
       if (objectDetector && isDetecting) {
@@ -231,134 +232,54 @@ function startSketch() {
           }
         }
 
-        // Draw detection boxes immediately after detection
+        // Draw detection boxes and handle random bird selection
         if (birdsDetected.length > 0) {
-          // Draw rectangles first
+          // Select a random bird every frame
+          let randomBirdIndex = p5.floor(p5.random(birdsDetected.length));
+          let randomBird = birdsDetected[randomBirdIndex];
+          let box = randomBird.boundingBox;
+
+          // Make sure coordinates are properly scaled
+          let scaledBox = {
+            originX: box.originX,
+            originY: box.originY,
+            width: box.width,
+            height: box.height,
+          };
+
+          // Set the random bird as active
+          activeBirdDetection = scaledBox;
+          activeBirdId = randomBirdIndex;
+          isLockedOnBird = true;
+
+          // Draw rectangle only for the selected bird
           drawRectBird();
 
-          // Check if the currently active bird is still detected
-          if (isLockedOnBird && activeBirdDetection) {
-            let closestBird = findClosestBird(activeBirdDetection);
-            if (closestBird) {
-              activeBirdDetection = closestBird;
-              activeBirdStillDetected = true;
-            }
+          // Update bird tracked position
+          birdTrackedPosition = {
+            x: scaledBox.originX + scaledBox.width / 2,
+            y: scaledBox.originY + scaledBox.height / 2,
+          };
+
+          birdTracked = true;
+          birdDetectedThisFrame = true;
+
+          // Slow down video for better observation
+          // birdFootage.videoElement.playbackRate = 0.3;
+          birdFootage.videoElement.muted = true;
+
+          // Play sound if not already playing
+          if (!currentSound || !currentSound.isPlaying()) {
+            // playRandomSample();
           }
 
-          // Check mouse interactions for new bird selection
-          for (let i = 0; i < birdsDetected.length; i++) {
-            let box = birdsDetected[i].boundingBox;
+          // Create bird image for the active bird
+          createBirdImage(activeBirdDetection);
 
-            // Make sure coordinates are properly scaled
-            let scaledBox = {
-              originX: box.originX,
-              originY: box.originY,
-              width: box.width,
-              height: box.height,
-            };
-
-            let isMouseInside =
-              p5.mouseX > scaledBox.originX &&
-              p5.mouseX < scaledBox.originX + scaledBox.width &&
-              p5.mouseY > scaledBox.originY &&
-              p5.mouseY < scaledBox.originY + scaledBox.height;
-
-            if (isMouseInside) {
-              container.style.cursor = `url(${svgURLObject}) 5 5, auto`;
-
-              // Clear any existing timeout since mouse is inside a detection
-              if (mouseOutsideTimeout) {
-                clearTimeout(mouseOutsideTimeout);
-                mouseOutsideTimeout = null;
-              }
-
-              // Check if this is a different bird than the currently active one
-              let isDifferentBird =
-                !isLockedOnBird ||
-                !activeBirdDetection ||
-                Math.abs(scaledBox.originX - activeBirdDetection.originX) >
-                  50 ||
-                Math.abs(scaledBox.originY - activeBirdDetection.originY) > 50;
-
-              if (isDifferentBird) {
-                // Stop current sample before switching to new bird
-                stopAllSamples();
-
-                // Lock onto this new bird
-                activeBirdDetection = scaledBox;
-                activeBirdId = i;
-                isLockedOnBird = true;
-
-                // Start new sample for the new bird
-                playRandomSample();
-              }
-
-              birdTrackedPosition = {
-                x: scaledBox.originX + scaledBox.width / 2,
-                y: scaledBox.originY + scaledBox.height / 2,
-              };
-              birdTracked = true;
-              birdDetectedThisFrame = true;
-              mouseInsideAnyDetection = true;
-
-              break;
-            }
-          }
-
-          // Handle active bird behavior (whether mouse is inside or not)
-          if (
-            isLockedOnBird &&
-            (activeBirdStillDetected || mouseInsideAnyDetection)
-          ) {
-            // Slow down video
-            birdFootage.videoElement.playbackRate = 0.1;
-            birdFootage.videoElement.muted = true;
-
-            // Keep playing the current sample (don't restart unless it's a new bird)
-            if (!currentSound || !currentSound.isPlaying()) {
-              playRandomSample();
-            }
-
-            // Create bird image for the active bird
-            createBirdImage(activeBirdDetection);
-
-            // Continue tracking
-            getLastPosition();
-          }
-
-          // Handle timeout when mouse is outside but bird is still detected
-          if (
-            isLockedOnBird &&
-            activeBirdStillDetected &&
-            !mouseInsideAnyDetection
-          ) {
-            // Start timeout if not already started
-            if (!mouseOutsideTimeout) {
-              mouseOutsideTimeout = setTimeout(() => {
-                // Reset after 3 seconds
-                resetBirdDetection();
-              }, timeoutDuration);
-            }
-
-            // Continue showing the bird detection during timeout
-            birdFootage.videoElement.playbackRate = 0.1;
-            birdFootage.videoElement.muted = true;
-
-            if (!currentSound || !currentSound.isPlaying()) {
-              playRandomSample();
-            }
-
-            createBirdImage(activeBirdDetection);
-            getLastPosition();
-          }
-        }
-
-        // Handle case when active bird is no longer detected
-        if (
-          isLockedOnBird &&
-          !activeBirdStillDetected &&
-          !mouseInsideAnyDetection
-        ) {
+          // Continue tracking
+          getLastPosition();
+        } else {
+          // No birds detected, reset state
           resetBirdDetection();
         }
       }
@@ -401,24 +322,17 @@ function startSketch() {
     }
     // New function to reset bird detection
     function resetBirdDetection() {
-      // Clear timeout
-      if (mouseOutsideTimeout) {
-        clearTimeout(mouseOutsideTimeout);
-        mouseOutsideTimeout = null;
-      }
-
       // Clear the active bird
       activeBirdDetection = null;
       activeBirdId = null;
       isLockedOnBird = false;
 
-      container.style.cursor = `auto`;
       birdTracked = false;
       showingBirdCam = false;
 
       // Resume normal video playback
       birdFootage.videoElement.playbackRate = 1;
-      birdFootage.videoElement.muted = false;
+      // birdFootage.videoElement.muted = false;
 
       // Stop all samples
       stopAllSamples();
@@ -436,45 +350,22 @@ function startSketch() {
         currentSound = null;
       }
     }
-    // Modified drawRectBird function to highlight the active bird differently
     function drawRectBird() {
       p5.push();
       p5.strokeWeight(2);
 
-      for (let i = 0; i < birdsDetected.length; i++) {
-        let box = birdsDetected[i].boundingBox;
+      // Only draw the rectangle for the active (randomly selected) bird
+      if (activeBirdId !== null && activeBirdId < birdsDetected.length) {
+        let box = birdsDetected[activeBirdId].boundingBox;
 
-        // Check if this is the active bird
-        let isActiveBird =
-          isLockedOnBird &&
-          activeBirdDetection &&
-          Math.abs(box.originX - activeBirdDetection.originX) < 10 &&
-          Math.abs(box.originY - activeBirdDetection.originY) < 10;
-
-        // Check if the mouse is inside the bounding box
-        let isMouseInside =
-          p5.mouseX > box.originX &&
-          p5.mouseX < box.originX + box.width &&
-          p5.mouseY > box.originY &&
-          p5.mouseY < box.originY + box.height;
-
-        if (isActiveBird) {
-          // Active bird gets a different color (e.g., blue)
-          p5.stroke(0, 0, 255);
-          p5.fill(0, 0, 255, 50); // Semi-transparent blue fill
-        } else if (isMouseInside) {
-          // Mouse hover gets green
-          p5.stroke(0, 255, 0);
-          p5.fill(0, 255, 0, 50); // Semi-transparent green fill
-        } else {
-          // Regular detection boxes
-          p5.stroke(0, 255, 0);
-          p5.noFill();
-        }
+        // Active bird gets a blue rectangle
+        p5.stroke(0, 255, 0);
+        p5.fill(0, 0, 255, 50); // Semi-transparent blue fill
 
         // Draw rectangle with exact coordinates from detection
         p5.rect(box.originX, box.originY, box.width, box.height);
       }
+
       p5.pop();
     }
 
@@ -547,7 +438,7 @@ function startSketch() {
 
       p5.imageMode(p5.CENTER);
 
-      lines(box, halfWidth);
+      // lines(box, halfWidth);
       p5.image(
         bird,
         p5.width / 2,
