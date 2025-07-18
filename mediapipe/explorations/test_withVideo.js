@@ -28,10 +28,10 @@ let maxTrailFrames = 300; // Maximum number of frames to keep in the trail
 let birdFootage = {
   p5VideoLayer: undefined,
   htmlVideoLayer: undefined,
-  path: "assets/videos/butterfly.mp4",
+  path: "assets/videos/birds_1.mp4",
   isRunning: false,
-  width: 1048,
-  height: 524,
+  width: 1024,
+  height: 576,
   margin: 10,
 };
 let mapMSL;
@@ -55,18 +55,8 @@ let sketch = new p5(function (p5) {
   // run video and detections and draw rectangles around birds
   p5.draw = function () {
     // p5.frameRate(25);
-    p5.background(255);
-    // p5.background(0);
-    // copy the video stream to the canvas and position it under it
-    // p5.push();
-    // p5.image(
-    //   birdFootage.p5VideoLayer,
-    //   0,
-    //   0,
-    //   birdFootage.width,
-    //   birdFootage.height
-    // );
-    // p5.pop();
+    p5.background(0, 0, 255);
+
     // if the the model is initialized, run detection on video and draw rectangles around birds
     if (objectDetector && isDetecting) {
       // put the detections of the video in results
@@ -104,10 +94,10 @@ let sketch = new p5(function (p5) {
       drawTrailFrames();
       // }
     }
-    p5.push();
-    p5.blendMode(p5.DARKEST);
-    p5.image(mapMSL, 0, 0);
-    p5.pop();
+    // p5.push();
+    // p5.blendMode(p5.DARKEST);
+    // p5.image(mapMSL, 0, 0);
+    // p5.pop();
   }; // end of draw
 
   async function initializeObjectDetector() {
@@ -119,7 +109,7 @@ let sketch = new p5(function (p5) {
         modelAssetPath: `https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite`,
         delegate: "GPU",
       },
-      scoreThreshold: 0.15,
+      scoreThreshold: 0.1,
       runningMode: "VIDEO",
     });
   }
