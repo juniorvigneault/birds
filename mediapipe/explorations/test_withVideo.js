@@ -26,14 +26,22 @@ let birdsDetected = [];
 let allBirdImages = [];
 let trailFrames = []; // Array to store previous frames for the trail effect
 let maxTrailFrames = 300; // Maximum number of frames to keep in the trail
+
+// Grid system variables
+let gridSize = 30; // Size of each grid square (adjust as needed)
+let gridCols, gridRows;
+let gridSlots = []; // Array to track which grid positions are filled
+let availableSlots = []; // Array of available grid positions
+let filledSlots = []; // Array of filled grid positions with their images
+
 // video variable for footage
 let birdFootage = {
   p5VideoLayer: undefined,
   htmlVideoLayer: undefined,
   path: "assets/videos/birds_1.mp4",
   isRunning: false,
-  width: 1024,
-  height: 576,
+  width: 786,
+  height: 588,
   margin: 10,
 };
 let mapMSL;
@@ -46,6 +54,10 @@ let sketch = new p5(function (p5) {
     // create a video element from the video footage for the canvas
     birdFootage.p5VideoLayer = p5.createVideo(birdFootage.path);
     p5.createCanvas(birdFootage.width, birdFootage.height);
+
+    // Initialize grid system
+    initializeGrid();
+
     // initialize bird detection
     await initializeObjectDetector();
     // initialize bird segmentation
@@ -54,12 +66,45 @@ let sketch = new p5(function (p5) {
     birdFootage.htmlVideoLayer = document.querySelector("video");
     birdFootage.htmlVideoLayer.muted = true;
   };
+
+  // Initialize the grid system
+  function initializeGrid() {
+    gridCols = Math.floor(birdFootage.width / gridSize);
+    gridRows = Math.floor(birdFootage.height / gridSize);
+
+    // Initialize all slots as available
+    availableSlots = [];
+    filledSlots = [];
+
+    for (let row = 0; row < gridRows; row++) {
+      for (let col = 0; col < gridCols; col++) {
+        availableSlots.push({ col: col, row: row });
+      }
+    }
+
+    // Shuffle available slots for random filling
+    shuffleArray(availableSlots);
+  }
+
+  // Fisher-Yates shuffle algorithm
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
   // run video and detections and draw rectangles around birds
   p5.draw = function () {
-    // p5.frameRate(25);
     p5.background(255);
 
-    // if the the model is initialized, run detection on video and draw rectangles around birds
+    // Draw the grid background (optional - for visualization)
+    // drawGridBackground();
+
+    // Draw all filled slots
+    drawFilledSlots();
+
+    // if the the model is initialized, run detection on video and process new detections
     if (objectDetector && isDetecting) {
       // put the detections of the video in results
       results = objectDetector.detectForVideo(
@@ -68,41 +113,83 @@ let sketch = new p5(function (p5) {
       );
 
       birdsDetected = results.detections;
-      // console.log(birdsDetected.categories)
-      // draw a rect around each bird
-      // if (birdsDetected.length > 0) {
-      for (let i = 0; i < birdsDetected.length; i++) {
-        // p5.push();
-        // let box = birdsDetected[i].boundingBox;
-        // p5.fill(255, 255, 255, 0);
-        // p5.stroke(230, 0, 0);
-        // p5.rect(box.originX, box.originY, box.width, box.height);
-        // p5.fill(0);
-        // p5.textFont(habitusFont);
-        // p5.text(
-        //   Math.floor(birdsDetected[i].categories[0].score * 100) % 100,
-        //   box.originX,
-        //   box.originY
-        // );
-        // p5.fill(0);
-        // p5.ellipse(box.originX - 10, box.originY + 5, 5, 5);
-        // p5.pop();
+
+      // Process new bird detections and add them to grid
+      if (birdsDetected.length > 0) {
+        createBirdImages();
+        addDetectionsToGrid();
       }
-      // p5.image(birdFootage.p5VideoLayer, 0, 0);
-
-      createBirdImages();
-
-      drawDetectedBirds();
-
-      // Draw the trail frames even if there are no detections
-      // drawTrailFrames();
-      // }
     }
-    // p5.push();
-    // p5.blendMode(p5.DARKEST);
-    // p5.image(mapMSL, 0, 0);
-    // p5.pop();
   }; // end of draw
+
+  // Optional: Draw grid lines for visualization (remove if not needed)
+  function drawGridBackground() {
+    p5.push();
+    p5.stroke(240);
+    p5.strokeWeight(0.5);
+
+    // Draw vertical lines
+    for (let col = 0; col <= gridCols; col++) {
+      let x = col * gridSize;
+      p5.line(x, 0, x, birdFootage.height);
+    }
+
+    // Draw horizontal lines
+    for (let row = 0; row <= gridRows; row++) {
+      let y = row * gridSize;
+      p5.line(0, y, birdFootage.width, y);
+    }
+    p5.pop();
+  }
+
+  // Draw all the filled grid slots
+  function drawFilledSlots() {
+    for (let slot of filledSlots) {
+      let x = slot.col * gridSize;
+      let y = slot.row * gridSize;
+      p5.image(slot.image, x, y, gridSize, gridSize);
+    }
+  }
+
+  // Add new detections to random grid positions
+  function addDetectionsToGrid() {
+    for (let i = 0; i < allBirdImages.length; i++) {
+      let birdImage = allBirdImages[i];
+
+      // Resize the bird image to fit the grid square
+      let resizedBirdImage = p5.createGraphics(gridSize, gridSize);
+      resizedBirdImage.image(birdImage, 0, 0, gridSize, gridSize);
+
+      // Get a random grid position
+      let gridPosition = getRandomGridPosition();
+
+      if (gridPosition) {
+        // Add to filled slots
+        filledSlots.push({
+          col: gridPosition.col,
+          row: gridPosition.row,
+          image: resizedBirdImage,
+        });
+      }
+    }
+  }
+
+  // Get a random grid position (either available or replace existing)
+  function getRandomGridPosition() {
+    if (availableSlots.length > 0) {
+      // If there are still available slots, use one
+      return availableSlots.pop();
+    } else {
+      // If all slots are filled, randomly replace an existing one
+      let randomIndex = Math.floor(Math.random() * filledSlots.length);
+      let position = filledSlots[randomIndex];
+
+      // Remove the old slot and return its position
+      filledSlots.splice(randomIndex, 1);
+
+      return { col: position.col, row: position.row };
+    }
+  }
 
   async function initializeObjectDetector() {
     const vision = await FilesetResolver.forVisionTasks(
@@ -133,161 +220,14 @@ let sketch = new p5(function (p5) {
     birdImageCreated = true;
   }
 
-  function drawDetectedBirds() {
-    if (birdImageCreated) {
-      // Draw current detections
-      for (let i = 0; i < allBirdImages.length; i++) {
-        let bird = allBirdImages[i];
-        let box = birdsDetected[i].boundingBox;
-
-        // Draw the current frame of detected birds on the main canvas
-        p5.image(bird, box.originX, box.originY, box.width, box.height);
-
-        // Save the current frame in the trailFrames array
-        trailFrames.push({
-          birdImage: bird,
-          box: box,
-        });
-
-        // Limit the number of frames in the trailFrames array
-        if (trailFrames.length > maxTrailFrames) {
-          trailFrames.shift(); // Remove the oldest frame if the array exceeds the maximum number of frames
-        }
-      }
-
-      // Draw connecting lines between different birds in the same frame
-      drawBirdConnectionLines();
-    }
-  }
-  function drawBirdConnectionLines() {
-    let maxConnectionsPerBird = 2; // You can make this adjustable via UI too
-
-    p5.push();
-    p5.stroke(255, 0, 0, 150); // Red lines with transparency
-    p5.strokeWeight(2);
-
-    for (let i = 0; i < birdsDetected.length; i++) {
-      let currentBox = birdsDetected[i].boundingBox;
-      let currentCenter = {
-        x: currentBox.originX + currentBox.width / 2,
-        y: currentBox.originY + currentBox.height / 2,
-      };
-
-      // Calculate distances to all other birds
-      let distances = [];
-
-      for (let j = 0; j < birdsDetected.length; j++) {
-        if (i !== j) {
-          let otherBox = birdsDetected[j].boundingBox;
-          let otherCenter = {
-            x: otherBox.originX + otherBox.width / 2,
-            y: otherBox.originY + otherBox.height / 2,
-          };
-
-          let dx = currentCenter.x - otherCenter.x;
-          let dy = currentCenter.y - otherCenter.y;
-          let distSq = dx * dx + dy * dy;
-
-          distances.push({
-            index: j,
-            distSq: distSq,
-            otherCenter: otherCenter,
-          });
-        }
-      }
-
-      // Sort by distance and take the closest N
-      distances.sort((a, b) => a.distSq - b.distSq);
-      let connections = distances.slice(0, maxConnectionsPerBird);
-
-      // Draw lines to selected connections
-      for (let k = 0; k < connections.length; k++) {
-        let target = connections[k];
-        p5.line(
-          currentCenter.x,
-          currentCenter.y,
-          target.otherCenter.x,
-          target.otherCenter.y
-        );
-      }
-    }
-
-    p5.pop();
+  // Optional: Add a function to clear the grid and start over
+  function clearGrid() {
+    initializeGrid();
   }
 
-  function drawBirdConnectionLinesFromCenters() {
-    p5.push();
-    p5.stroke(0, 255, 0, 150); // Green lines with transparency
-    p5.strokeWeight(2);
-
-    // For each bird detection
-    for (let i = 0; i < birdsDetected.length; i++) {
-      let currentBox = birdsDetected[i].boundingBox;
-
-      // Get center of current bird
-      let currentCenter = {
-        x: currentBox.originX + currentBox.width / 2,
-        y: currentBox.originY + currentBox.height / 2,
-      };
-
-      // Draw lines to all OTHER birds in the same frame
-      for (let j = 0; j < birdsDetected.length; j++) {
-        if (i !== j) {
-          // Don't draw line to itself
-          let otherBox = birdsDetected[j].boundingBox;
-
-          // Get center of other bird
-          let otherCenter = {
-            x: otherBox.originX + otherBox.width / 2,
-            y: otherBox.originY + otherBox.height / 2,
-          };
-
-          // Draw line from current bird center to other bird center
-          p5.line(
-            currentCenter.x,
-            currentCenter.y,
-            otherCenter.x,
-            otherCenter.y
-          );
-        }
-      }
-    }
-    p5.pop();
-  }
-
-  function storePreviousDetections() {
-    // Store current detections as previous for next frame
-    let currentDetections = [];
-
-    for (let detection of birdsDetected) {
-      currentDetections.push({
-        originX: detection.boundingBox.originX,
-        originY: detection.boundingBox.originY,
-        width: detection.boundingBox.width,
-        height: detection.boundingBox.height,
-      });
-    }
-
-    // Add to beginning of array (most recent first)
-    previousDetections.unshift(currentDetections);
-
-    // Limit the number of previous frames we keep
-    if (previousDetections.length > maxPreviousFrames) {
-      previousDetections.pop(); // Remove the oldest frame
-    }
-  }
-
-  function drawTrailFrames() {
-    // Draw the trail frames
-    for (let i = 0; i < trailFrames.length; i++) {
-      let frame = trailFrames[i];
-      p5.image(
-        frame.birdImage,
-        frame.box.originX,
-        frame.box.originY,
-        frame.box.width,
-        frame.box.height
-      );
-    }
+  // Optional: Add a function to change grid size
+  function setGridSize(newSize) {
+    gridSize = newSize;
+    initializeGrid();
   }
 }); // end of p5 sketch
