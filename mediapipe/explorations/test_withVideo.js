@@ -251,8 +251,8 @@ let sketch = new p5((p5) => {
     handFootage.p5VideoLayer = p5.createCapture(p5.VIDEO);
     handsCanvas = p5.createCanvas(
       handFootage.width,
-      handFootage.height,
-      p5.WEBGL
+      handFootage.height
+      // p5.WEBGL
     );
     handsCanvas.parent("hands-canvas");
     handFootage.p5VideoLayer.hide();
@@ -284,8 +284,8 @@ let sketch = new p5((p5) => {
   }
 
   p5.draw = function () {
-    p5.background(0);
-    // p5.clear(handsCanvas);
+    // p5.background(0);
+    p5.clear(handsCanvas);
 
     if (!handFootage.p5VideoLayer) {
       console.error("handFootage or handFootage.p5VideoLayer is undefined");
@@ -326,7 +326,7 @@ let sketch = new p5((p5) => {
         p5.millis()
       );
       handsDetected = results.landmarks;
-      // drawTrailFrames(p5);
+      drawTrailFrames(p5);
       //
       // console.log(handsDetected);
 
